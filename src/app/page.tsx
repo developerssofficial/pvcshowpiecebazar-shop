@@ -1,71 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const services = [
-  {
-    id: 1,
-    name: "Custom PVC Showpiece",
-    desc: "আপনার পছন্দমতো কাস্টমাইজড PVC শোপিস তৈরি করি।",
-    image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Custom%20handcrafted%20PVC%20showpiece%20beautiful%20sculpture%20on%20white%20background%20product%20photography&image_size=square",
-    category: "Showpiece",
-  },
-  {
-    id: 2,
-    name: "Name Showpiece",
-    desc: "আপনার নাম দিয়ে তৈরি বিশেষ PVC শোপিস।",
-    image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=PVC%20name%20showpiece%20decorative%20nameplate%20elegant%20on%20white%20background%20product%20photography&image_size=square",
-    category: "Showpiece",
-  },
-  {
-    id: 3,
-    name: "Couple Showpiece",
-    desc: "প্রিয়জনের জন্য সুন্দর কাপল শোপিস।",
-    image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Beautiful%20PVC%20couple%20showpiece%20romantic%20sculpture%20on%20white%20background%20product%20photography&image_size=square",
-    category: "Showpiece",
-  },
-  {
-    id: 4,
-    name: "Family Showpiece",
-    desc: "পরিবারের ছবি থেকে তৈরি PVC শোপিস।",
-    image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=PVC%20family%20showpiece%20loving%20family%20sculpture%20on%20white%20background%20product%20photography&image_size=square",
-    category: "Showpiece",
-  },
-  {
-    id: 5,
-    name: "Home Decoration",
-    desc: "আপনার ঘর সাজানোর জন্য সেরা PVC ডেকোর।",
-    image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=PVC%20home%20decoration%20items%20flower%20vase%20showpiece%20on%20white%20background%20product%20photography&image_size=square",
-    category: "Decor",
-  },
-  {
-    id: 6,
-    name: "Wall Decor",
-    desc: "দেয়ালের জন্য আকর্ষণীয় PVC ওয়াল ডেকোর।",
-    image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=PVC%20wall%20decor%20art%20beautiful%20hanging%20on%20white%20background%20product%20photography&image_size=square",
-    category: "Decor",
-  },
-  {
-    id: 7,
-    name: "Calligraphy PVC",
-    desc: "ইসলামিক ক্যালিগ্রাফি PVC শোপিস।",
-    image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=PVC%20Islamic%20calligraphy%20art%20bismillah%20elegant%20sculpture%20on%20white%20background%20product%20photography&image_size=square",
-    category: "Art",
-  },
-  {
-    id: 8,
-    name: "Gift Showpiece",
-    desc: "প্রিয়জনকে দেওয়ার জন্য নান্দনিক PVC গিফট।",
-    image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Beautiful%20PVC%20gift%20showpiece%20wrapped%20elegant%20present%20on%20white%20background%20product%20photography&image_size=square",
-    category: "Gift",
-  },
+interface ServiceItem {
+  _id?: string;
+  id?: number;
+  name: string;
+  description?: string;
+  desc?: string;
+  image: string;
+  category: string;
+}
+
+const fallbackServices: ServiceItem[] = [
+  { id: 1, name: "Custom PVC Showpiece", desc: "আপনার পছন্দমতো কাস্টমাইজড PVC শোপিস তৈরি করি।", image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Custom%20handcrafted%20PVC%20showpiece%20beautiful%20sculpture%20on%20white%20background%20product%20photography&image_size=square", category: "Showpiece" },
+  { id: 2, name: "Name Showpiece", desc: "আপনার নাম দিয়ে তৈরি বিশেষ PVC শোপিস।", image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=PVC%20name%20showpiece%20decorative%20nameplate%20elegant%20on%20white%20background%20product%20photography&image_size=square", category: "Showpiece" },
+  { id: 3, name: "Couple Showpiece", desc: "প্রিয়জনের জন্য সুন্দর কাপল শোপিস।", image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Beautiful%20PVC%20couple%20showpiece%20romantic%20sculpture%20on%20white%20background%20product%20photography&image_size=square", category: "Showpiece" },
+  { id: 4, name: "Family Showpiece", desc: "পরিবারের ছবি থেকে তৈরি PVC শোপিস।", image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=PVC%20family%20showpiece%20loving%20family%20sculpture%20on%20white%20background%20product%20photography&image_size=square", category: "Showpiece" },
+  { id: 5, name: "Home Decoration", desc: "আপনার ঘর সাজানোর জন্য সেরা PVC ডেকোর।", image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=PVC%20home%20decoration%20items%20flower%20vase%20showpiece%20on%20white%20background%20product%20photography&image_size=square", category: "Decor" },
+  { id: 6, name: "Wall Decor", desc: "দেয়ালের জন্য আকর্ষণীয় PVC ওয়াল ডেকোর।", image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=PVC%20wall%20decor%20art%20beautiful%20hanging%20on%20white%20background%20product%20photography&image_size=square", category: "Decor" },
+  { id: 7, name: "Calligraphy PVC", desc: "ইসলামিক ক্যালিগ্রাফি PVC শোপিস।", image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=PVC%20Islamic%20calligraphy%20art%20bismillah%20elegant%20sculpture%20on%20white%20background%20product%20photography&image_size=square", category: "Art" },
+  { id: 8, name: "Gift Showpiece", desc: "প্রিয়জনকে দেওয়ার জন্য নান্দনিক PVC গিফট।", image: "https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=Beautiful%20PVC%20gift%20showpiece%20wrapped%20elegant%20present%20on%20white%20background%20product%20photography&image_size=square", category: "Gift" },
 ];
 
-const serviceCategories = ["All", "Showpiece", "Decor", "Art", "Gift"];
+const allCategories = ["All", "Showpiece", "Decor", "Art", "Gift"];
 
 export default function Home() {
+  const [services, setServices] = useState<ServiceItem[]>(fallbackServices);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/services")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setServices(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const serviceCategories = [
+    "All",
+    ...Array.from(new Set(services.map((s) => s.category))),
+  ];
 
   const filteredServices =
     selectedCategory === "All"
@@ -419,7 +398,7 @@ export default function Home() {
                     {service.name}
                   </h3>
                   <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.4, marginBottom: 12 }}>
-                    {service.desc}
+                    {service.description || service.desc}
                   </p>
                   <a
                     href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${service.name}. Please share details.`}
