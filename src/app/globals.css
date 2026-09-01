@@ -1,13 +1,13 @@
 :root {
-  --foreground: #171717;
+  --foreground: #1c3528;
   --background: #ffffff;
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --secondary: #f59e0b;
+  --primary: #1c3528;
+  --primary-dark: #142a1e;
+  --secondary: #c9a96e;
   --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
+  --gray-100: #f8f6f1;
+  --gray-200: #e8e0d0;
+  --gray-300: #d4c9b0;
   --gray-600: #4b5563;
   --gray-700: #374151;
   --gray-800: #1f2937;
