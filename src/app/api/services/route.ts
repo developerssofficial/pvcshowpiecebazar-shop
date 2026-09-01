@@ -23,11 +23,11 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, description, image, category } = body;
+    const { name, description, image, category, price, offer } = body;
 
-    if (!name || !description || !image) {
+    if (!name || !description || !image || price === undefined || price === null) {
       return NextResponse.json(
-        { error: "Name, description and image are required" },
+        { error: "Name, description, image and price are required" },
         { status: 400 }
       );
     }
@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
       description,
       image,
       category: category || "Showpiece",
+      price,
+      offer: offer || null,
       createdAt: new Date(),
     };
 
