@@ -170,7 +170,7 @@ export default function AdminPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("আপনি কি নিশ্চিত এই সেবাটি মুছে ফেলতে চান?")) return;
     try {
-      const res = await fetch(`/api/services/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/services?id=${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
       setSuccessMsg("সেবা মুছে ফেলা হয়েছে।");
       fetchServices();
