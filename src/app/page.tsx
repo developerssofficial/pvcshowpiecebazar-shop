@@ -28,7 +28,8 @@ const fallbackServices: ServiceItem[] = [
 const allCategories = ["All", "Showpiece", "Decor", "Art", "Gift"];
 
 export default function Home() {
-  const [services, setServices] = useState<ServiceItem[]>(fallbackServices);
+  const [services, setServices] = useState<ServiceItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
@@ -41,7 +42,8 @@ export default function Home() {
           setServices(data);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const serviceCategories = [
@@ -339,6 +341,29 @@ export default function Home() {
           </div>
 
           {/* Services Grid */}
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "60px 20px" }}>
+              <div style={{
+                width: 40,
+                height: 40,
+                border: "4px solid #e5e7eb",
+                borderTop: "4px solid #1c3528",
+                borderRadius: "50%",
+                animation: "spin 1s linear infinite",
+                margin: "0 auto 16px",
+              }} />
+              <p style={{ color: "#64748b", fontSize: 14 }}>লোড হচ্ছে...</p>
+              <style jsx global>{`
+                @keyframes spin {
+                  to { transform: rotate(360deg); }
+                }
+              `}</style>
+            </div>
+          ) : filteredServices.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px 20px" }}>
+              <p style={{ color: "#64748b", fontSize: 16 }}>কোনো সেবা পাওয়া যায়নি।</p>
+            </div>
+          ) : (
           <div
             style={{
               display: "grid",
@@ -448,6 +473,7 @@ export default function Home() {
               </div>
             ))}
           </div>
+          )}
         </div>
       </section>
 
