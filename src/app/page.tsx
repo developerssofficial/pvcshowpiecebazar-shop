@@ -61,7 +61,7 @@ export default function Home() {
       {/* Header */}
       <header
         style={{
-          background: "linear-gradient(135deg, #285C66, #3a7a86)",
+          background: "linear-gradient(135deg, #1c3528, #2d5a3d)",
           color: "white",
           padding: "0",
           position: "sticky",
@@ -89,7 +89,7 @@ export default function Home() {
                 height: 50,
                 borderRadius: "50%",
                 objectFit: "cover",
-                border: "2px solid #285C66",
+                border: "2px solid #1c3528",
               }}
             />
             <div>
@@ -156,7 +156,7 @@ export default function Home() {
       <section
         id="home"
         style={{
-          background: "linear-gradient(135deg, #285C66 0%, #3a7a86 50%, #3a7a52 100%)",
+          background: "linear-gradient(135deg, #1c3528 0%, #2d5a3d 50%, #3a7a52 100%)",
           color: "white",
           padding: "50px 20px 60px",
           textAlign: "center",
@@ -173,7 +173,7 @@ export default function Home() {
               height: 100,
               borderRadius: "50%",
               objectFit: "cover",
-              border: "3px solid #285C66",
+              border: "3px solid #1c3528",
               marginBottom: 25,
               boxShadow: "0 0 30px rgba(40,92,102,0.3)",
             }}
@@ -192,7 +192,7 @@ export default function Home() {
           <p
             style={{
               fontSize: "clamp(14px, 2vw, 18px)",
-              color: "#285C66",
+              color: "#1c3528",
               marginBottom: 20,
               letterSpacing: 3,
               textTransform: "uppercase",
@@ -218,8 +218,8 @@ export default function Home() {
             <a
               href="#services"
               style={{
-                background: "#285C66",
-                color: "#285C66",
+                background: "#c9a96e",
+                color: "#1c3528",
                 padding: "14px 35px",
                 borderRadius: 10,
                 fontSize: 16,
@@ -236,8 +236,8 @@ export default function Home() {
               rel="noopener noreferrer"
               style={{
                 background: "rgba(255,255,255,0.12)",
-                border: "2px solid #285C66",
-                color: "#285C66",
+                border: "2px solid #c9a96e",
+                color: "#c9a96e",
                 padding: "14px 35px",
                 borderRadius: 10,
                 fontSize: 16,
@@ -254,9 +254,9 @@ export default function Home() {
       {/* Features Bar */}
       <section
         style={{
-          background: "#F5F1E8",
+          background: "#f0ebe0",
           padding: "30px 20px",
-          borderBottom: "1px solid #e8e2d4",
+          borderBottom: "1px solid #e8e0d0",
         }}
       >
         <div
@@ -282,7 +282,7 @@ export default function Home() {
               }}
             >
               <div style={{ fontSize: 32, marginBottom: 8 }}>{feature.icon}</div>
-              <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: "#285C66" }}>
+              <h3 style={{ fontSize: 15, fontWeight: 700, marginBottom: 4, color: "#1c3528" }}>
                 {feature.title}
               </h3>
               <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.4 }}>{feature.desc}</p>
@@ -301,7 +301,7 @@ export default function Home() {
       >
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 40 }}>
-            <h2 style={{ fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 800, color: "#285C66" }}>
+            <h2 style={{ fontSize: "clamp(24px, 4vw, 36px)", fontWeight: 800, color: "#1c3528" }}>
               আমাদের সেবাসমূহ
             </h2>
             <p style={{ color: "#64748b", marginTop: 10, fontSize: 16 }}>
@@ -326,8 +326,8 @@ export default function Home() {
                 style={{
                   padding: "8px 22px",
                   borderRadius: 25,
-                  border: selectedCategory === cat ? "none" : "2px solid #d1d5db",
-                  background: selectedCategory === cat ? "#285C66" : "white",
+                  border: selectedCategory === cat ? "none" : "2px solid #d4c9b0",
+                  background: selectedCategory === cat ? "#1c3528" : "white",
                   color: selectedCategory === cat ? "white" : "#374151",
                   fontSize: 14,
                   fontWeight: 600,
@@ -388,7 +388,7 @@ export default function Home() {
                   style={{
                     width: "100%",
                     height: 220,
-                    background: "#F5F1E8",
+                    background: "#f0ebe0",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -405,8 +405,8 @@ export default function Home() {
                   <span
                     style={{
                       display: "inline-block",
-                      background: "#F5F1E8",
-                      color: "#285C66",
+                      background: "#f0ebe0",
+                      color: "#1c3528",
                       padding: "3px 10px",
                       borderRadius: 12,
                       fontSize: 11,
@@ -416,18 +416,18 @@ export default function Home() {
                   >
                     {service.category}
                   </span>
-                  <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 6, color: "#285C66" }}>
+                  <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 6, color: "#1c3528" }}>
                     {service.name}
                   </h3>
                   <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.4, marginBottom: 12, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const }}>
                     {service.description || service.desc}
                   </p>
-                  <p style={{ fontSize: 12, color: "#285C66", fontWeight: 600, marginBottom: 12, cursor: "pointer" }}>
+                  <p style={{ fontSize: 12, color: "#1c3528", fontWeight: 600, marginBottom: 12, cursor: "pointer" }}>
                     বিস্তারিত দেখুন →
                   </p>
                   {service.price !== undefined && service.price !== null && (
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                      <span style={{ fontSize: 18, fontWeight: 700, color: "#285C66" }}>
+                      <span style={{ fontSize: 18, fontWeight: 700, color: "#1c3528" }}>
                         ৳{service.price}
                       </span>
                       {service.offer != null && service.offer > 0 && (
@@ -473,7 +473,7 @@ export default function Home() {
       <section
         id="about"
         style={{
-          background: "linear-gradient(135deg, #285C66, #3a7a86)",
+          background: "linear-gradient(135deg, #1c3528, #2d5a3d)",
           color: "white",
           padding: "70px 20px",
         }}
@@ -515,7 +515,7 @@ export default function Home() {
                 { num: "50+", label: "Designs" },
               ].map((stat, i) => (
                 <div key={i} style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: 26, fontWeight: 800, color: "#285C66" }}>
+                  <div style={{ fontSize: 26, fontWeight: 800, color: "#1c3528" }}>
                     {stat.num}
                   </div>
                   <div style={{ fontSize: 12, opacity: 0.8 }}>{stat.label}</div>
@@ -533,7 +533,7 @@ export default function Home() {
             <img
               src="/logo.png"
               alt="PVC Showpiece Bazar"
-              style={{ width: "100%", objectFit: "contain", display: "block", background: "#F5F1E8", padding: 20 }}
+              style={{ width: "100%", objectFit: "contain", display: "block", background: "#f0ebe0", padding: 20 }}
             />
           </div>
         </div>
@@ -544,11 +544,11 @@ export default function Home() {
         id="contact"
         style={{
           padding: "60px 20px",
-          background: "#F5F1E8",
+          background: "#f0ebe0",
         }}
       >
         <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
-          <h2 style={{ fontSize: "clamp(24px, 4vw, 34px)", fontWeight: 800, color: "#285C66", marginBottom: 15 }}>
+          <h2 style={{ fontSize: "clamp(24px, 4vw, 34px)", fontWeight: 800, color: "#1c3528", marginBottom: 15 }}>
             যোগাযোগ করুন
           </h2>
           <p style={{ color: "#64748b", marginBottom: 40, fontSize: 16 }}>
@@ -581,8 +581,8 @@ export default function Home() {
               onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)"; }}
             >
               <div style={{ fontSize: 36 }}>&#128222;</div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#285C66" }}>ফোন করুন</h3>
-              <p style={{ fontSize: 15, color: "#285C66", fontWeight: 600 }}>+880 1336-410584</p>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1c3528" }}>ফোন করুন</h3>
+              <p style={{ fontSize: 15, color: "#1c3528", fontWeight: 600 }}>+880 1336-410584</p>
             </a>
 
             {/* Email */}
@@ -603,8 +603,8 @@ export default function Home() {
               onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)"; }}
             >
               <div style={{ fontSize: 36 }}>&#128231;</div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#285C66" }}>ইমেইল করুন</h3>
-              <p style={{ fontSize: 14, color: "#285C66", fontWeight: 600, wordBreak: "break-all" }}>pvcshowpiecebazar.info@gmail.com</p>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1c3528" }}>ইমেইল করুন</h3>
+              <p style={{ fontSize: 14, color: "#1c3528", fontWeight: 600, wordBreak: "break-all" }}>pvcshowpiecebazar.info@gmail.com</p>
             </a>
 
             {/* WhatsApp */}
@@ -627,7 +627,7 @@ export default function Home() {
               onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)"; }}
             >
               <div style={{ fontSize: 36 }}>&#128172;</div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#285C66" }}>WhatsApp</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1c3528" }}>WhatsApp</h3>
               <p style={{ fontSize: 14, color: "#25D366", fontWeight: 600 }}>WhatsApp-এ মেসেজ করুন</p>
             </a>
 
@@ -651,7 +651,7 @@ export default function Home() {
               onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)"; }}
             >
               <div style={{ fontSize: 36 }}>&#128240;</div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#285C66" }}>Facebook</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1c3528" }}>Facebook</h3>
               <p style={{ fontSize: 14, color: "#1877F2", fontWeight: 600 }}>আমাদের Facebook পেজ</p>
             </a>
           </div>
@@ -671,7 +671,7 @@ export default function Home() {
           >
             <span style={{ fontSize: 28 }}>&#128205;</span>
             <div style={{ textAlign: "left" }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#285C66", marginBottom: 2 }}>আমাদের অবস্থান</h3>
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1c3528", marginBottom: 2 }}>আমাদের অবস্থান</h3>
               <p style={{ fontSize: 14, color: "#64748b" }}>Barisal, Bangladesh</p>
             </div>
           </div>
@@ -681,7 +681,7 @@ export default function Home() {
       {/* Footer */}
       <footer
         style={{
-          background: "#285C66",
+          background: "#1c3528",
           color: "#9ca3af",
           padding: "40px 20px 20px",
         }}
@@ -700,7 +700,7 @@ export default function Home() {
             <img
               src="/logo.png"
               alt="PVC Showpiece Bazar"
-              style={{ width: 60, height: 60, borderRadius: "50%", objectFit: "cover", marginBottom: 12, border: "2px solid #285C66" }}
+              style={{ width: 60, height: 60, borderRadius: "50%", objectFit: "cover", marginBottom: 12, border: "2px solid #1c3528" }}
             />
             <h3 style={{ color: "white", fontSize: 17, fontWeight: 700, marginBottom: 10 }}>
               PVC Showpiece Bazar
@@ -798,7 +798,7 @@ export default function Home() {
         >
           {/* Top Bar */}
           <div style={{
-            background: "linear-gradient(135deg, #285C66, #3a7a86)",
+            background: "linear-gradient(135deg, #1c3528, #2d5a3d)",
             padding: "14px 20px",
             display: "flex",
             alignItems: "center",
@@ -829,7 +829,7 @@ export default function Home() {
               <img
                 src="/logo.png"
                 alt="PVC Showpiece Bazar"
-                style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", border: "2px solid #285C66" }}
+                style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", border: "2px solid #1c3528" }}
               />
               <span style={{ color: "white", fontWeight: 700, fontSize: 14 }}>PVC Showpiece Bazar</span>
             </div>
@@ -839,9 +839,9 @@ export default function Home() {
           <div style={{ maxWidth: 1100, margin: "0 auto", padding: "30px 20px 60px" }}>
             {/* Breadcrumb */}
             <div style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>
-              <span style={{ cursor: "pointer", color: "#285C66" }} onClick={() => setSelectedService(null)}>হোম</span>
+              <span style={{ cursor: "pointer", color: "#1c3528" }} onClick={() => setSelectedService(null)}>হোম</span>
               <span style={{ margin: "0 8px" }}>/</span>
-              <span style={{ cursor: "pointer", color: "#285C66" }} onClick={() => setSelectedService(null)}>সেবাসমূহ</span>
+              <span style={{ cursor: "pointer", color: "#1c3528" }} onClick={() => setSelectedService(null)}>সেবাসমূহ</span>
               <span style={{ margin: "0 8px" }}>/</span>
               <span>{selectedService.name}</span>
             </div>
@@ -852,10 +852,10 @@ export default function Home() {
               {/* LEFT: Image */}
               <div>
                 <div style={{
-                  background: "#F5F1E8",
+                  background: "#f0ebe0",
                   borderRadius: 14,
                   overflow: "hidden",
-                  border: "1px solid #e8e2d4",
+                  border: "1px solid #e8e0d0",
                 }}>
                   <img
                     src={selectedService.image}
@@ -870,8 +870,8 @@ export default function Home() {
                 {/* Category */}
                 <span style={{
                   display: "inline-block",
-                  background: "#F5F1E8",
-                  color: "#285C66",
+                  background: "#f0ebe0",
+                  color: "#1c3528",
                   padding: "4px 12px",
                   borderRadius: 12,
                   fontSize: 12,
@@ -882,7 +882,7 @@ export default function Home() {
                 </span>
 
                 {/* Name */}
-                <h1 style={{ fontSize: 26, fontWeight: 800, color: "#285C66", marginBottom: 8, lineHeight: 1.3 }}>
+                <h1 style={{ fontSize: 26, fontWeight: 800, color: "#1c3528", marginBottom: 8, lineHeight: 1.3 }}>
                   {selectedService.name}
                 </h1>
 
@@ -920,7 +920,7 @@ export default function Home() {
                       )}
                     </div>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-                      <span style={{ fontSize: 30, fontWeight: 800, color: "#dc2626" }}>
+                      <span style={{ fontSize: 30, fontWeight: 800, color: "#b91c1c" }}>
                         ৳{selectedService.price}
                       </span>
                       {selectedService.offer != null && selectedService.offer > 0 && (
@@ -940,18 +940,18 @@ export default function Home() {
 
                 {/* Stock Status */}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                  <span style={{ color: "#0284c7", fontWeight: 700, fontSize: 14 }}>✓ স্টকে আছে</span>
+                  <span style={{ color: "#16a34a", fontWeight: 700, fontSize: 14 }}>✓ স্টকে আছে</span>
                 </div>
 
                 {/* Delivery Info */}
                 <div style={{
-                  background: "#f0f9ff",
-                  border: "1px solid #bae6fd",
+                  background: "#f0fdf4",
+                  border: "1px solid #bbf7d0",
                   borderRadius: 10,
                   padding: "12px 16px",
                   marginBottom: 16,
                   fontSize: 13,
-                  color: "#0369a1",
+                  color: "#166534",
                 }}>
                   <strong>🚚 ডেলিভারি:</strong> অর্ডার করলে ২-৩ কর্মদিবসের মধ্যে হোম ডেলিভারি
                 </div>
@@ -986,7 +986,7 @@ export default function Home() {
                       alignItems: "center",
                       justifyContent: "center",
                       gap: 8,
-                      background: "#285C66",
+                      background: "#1c3528",
                       color: "white",
                       padding: "15px 20px",
                       borderRadius: 10,
@@ -1018,11 +1018,11 @@ export default function Home() {
 
             {/* About This Item */}
             <div style={{ marginTop: 40, borderTop: "1px solid #e5e7eb", paddingTop: 30 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: "#285C66", marginBottom: 16 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: "#1c3528", marginBottom: 16 }}>
                 এই প্রোডাক্ট সম্পর্কে
               </h2>
               <div style={{
-                background: "#F5F1E8",
+                background: "#f0ebe0",
                 borderRadius: 12,
                 padding: "20px 24px",
                 fontSize: 14,
@@ -1035,7 +1035,7 @@ export default function Home() {
 
             {/* Product Highlights */}
             <div style={{ marginTop: 30 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: "#285C66", marginBottom: 16 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: "#1c3528", marginBottom: 16 }}>
                 প্রোডাক্ট হাইলাইটস
               </h2>
               <div style={{
@@ -1058,7 +1058,7 @@ export default function Home() {
                     alignItems: "center",
                     gap: 10,
                     fontSize: 14,
-                    color: "#285C66",
+                    color: "#1c3528",
                     fontWeight: 600,
                   }}>
                     <span style={{ fontSize: 20 }}>{item.icon}</span>
@@ -1071,7 +1071,7 @@ export default function Home() {
             {/* Bottom CTA */}
             <div style={{
               marginTop: 40,
-              background: "linear-gradient(135deg, #285C66, #3a7a86)",
+              background: "linear-gradient(135deg, #1c3528, #2d5a3d)",
               borderRadius: 14,
               padding: "30px",
               textAlign: "center",
@@ -1100,7 +1100,7 @@ export default function Home() {
                   href="tel:+8801336410584"
                   style={{
                     background: "white",
-                    color: "#285C66",
+                    color: "#1c3528",
                     padding: "12px 28px",
                     borderRadius: 10,
                     fontSize: 15,

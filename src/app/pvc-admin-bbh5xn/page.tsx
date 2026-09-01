@@ -199,7 +199,7 @@ export default function AdminPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#285C66",
+          background: "#1c3528",
           fontFamily: "'Segoe UI', Tahoma, sans-serif",
         }}
       >
@@ -217,7 +217,7 @@ export default function AdminPage() {
         >
           <h1
             style={{
-              color: "#285C66",
+              color: "#1c3528",
               fontSize: "1.5rem",
               marginBottom: "8px",
             }}
@@ -226,7 +226,7 @@ export default function AdminPage() {
           </h1>
           <p
             style={{
-              color: "#F5F1E8",
+              color: "#f0ebe0",
               fontSize: "0.95rem",
               marginBottom: "28px",
             }}
@@ -266,7 +266,7 @@ export default function AdminPage() {
               marginBottom: "16px",
               transition: "border-color 0.2s",
             }}
-            onFocus={(e) => (e.target.style.borderColor = "#F5F1E8")}
+            onFocus={(e) => (e.target.style.borderColor = "#f0ebe0")}
             onBlur={(e) => (e.target.style.borderColor = "#ddd")}
           />
 
@@ -276,8 +276,8 @@ export default function AdminPage() {
             style={{
               width: "100%",
               padding: "12px",
-              background: "#F5F1E8",
-              color: "#285C66",
+              background: "#f0ebe0",
+              color: "#1c3528",
               border: "none",
               borderRadius: "8px",
               fontSize: "1.05rem",
@@ -306,7 +306,7 @@ export default function AdminPage() {
       {/* Header */}
       <header
         style={{
-          background: "#285C66",
+          background: "#1c3528",
           color: "white",
           padding: "16px 24px",
           display: "flex",
@@ -317,7 +317,7 @@ export default function AdminPage() {
         }}
       >
         <h1 style={{ margin: 0, fontSize: "1.3rem" }}>
-          <span style={{ color: "#F5F1E8" }}>Admin Panel</span> - PVC Showpiece
+          <span style={{ color: "#f0ebe0" }}>Admin Panel</span> - PVC Showpiece
           Bazar
         </h1>
         <button
@@ -325,8 +325,8 @@ export default function AdminPage() {
           style={{
             padding: "8px 20px",
             background: "transparent",
-            color: "#F5F1E8",
-            border: "2px solid #F5F1E8",
+            color: "#f0ebe0",
+            border: "2px solid #f0ebe0",
             borderRadius: "6px",
             cursor: "pointer",
             fontSize: "0.9rem",
@@ -334,12 +334,12 @@ export default function AdminPage() {
             transition: "all 0.2s",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#F5F1E8";
-            e.currentTarget.style.color = "#285C66";
+            e.currentTarget.style.background = "#f0ebe0";
+            e.currentTarget.style.color = "#1c3528";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = "#F5F1E8";
+            e.currentTarget.style.color = "#f0ebe0";
           }}
         >
           লগআউট
@@ -411,7 +411,7 @@ export default function AdminPage() {
               <h2
                 style={{
                   margin: "0 0 20px 0",
-                  color: "#285C66",
+                  color: "#1c3528",
                   fontSize: "1.2rem",
                 }}
               >
@@ -621,8 +621,8 @@ export default function AdminPage() {
                   style={{
                     width: "100%",
                     padding: "12px",
-                    background: "#285C66",
-                    color: "#F5F1E8",
+                    background: "#1c3528",
+                    color: "#f0ebe0",
                     border: "none",
                     borderRadius: "8px",
                     fontSize: "1rem",
@@ -659,7 +659,7 @@ export default function AdminPage() {
                 <h2
                   style={{
                     margin: 0,
-                    color: "#285C66",
+                    color: "#1c3528",
                     fontSize: "1.2rem",
                   }}
                 >
@@ -670,8 +670,8 @@ export default function AdminPage() {
                   disabled={seeding}
                   style={{
                     padding: "8px 16px",
-                    background: "#F5F1E8",
-                    color: "#285C66",
+                    background: "#f0ebe0",
+                    color: "#1c3528",
                     border: "none",
                     borderRadius: "6px",
                     cursor: seeding ? "not-allowed" : "pointer",
@@ -763,7 +763,7 @@ export default function AdminPage() {
                           <span
                             style={{
                               fontWeight: 700,
-                              color: "#285C66",
+                              color: "#1c3528",
                               fontSize: "0.9rem",
                             }}
                           >
@@ -785,8 +785,8 @@ export default function AdminPage() {
                           )}
                           <span
                             style={{
-                              background: "#285C6620",
-                              color: "#285C66",
+                              background: "#1c352820",
+                              color: "#1c3528",
                               padding: "2px 8px",
                               borderRadius: "10px",
                               fontSize: "0.75rem",
