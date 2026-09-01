@@ -342,18 +342,14 @@ export default function Home() {
 
           {/* Services Grid */}
           {loading ? (
-            <div style={{ textAlign: "center", padding: "60px 20px" }}>
-              <div style={{
-                width: 40,
-                height: 40,
-                border: "4px solid #e5e7eb",
-                borderTop: "4px solid #1c3528",
-                borderRadius: "50%",
-                animation: "spin 1s linear infinite",
-                margin: "0 auto 16px",
-              }} />
-              <p style={{ color: "#64748b", fontSize: 14 }}>লোড হচ্ছে...</p>
-              {/* spinner animation defined in global style below */}
+            <div style={{ textAlign: "center", padding: "80px 20px" }}>
+              <div className="wave-loader">
+                <div className="wave-loader__ring wave-loader__ring--1" />
+                <div className="wave-loader__ring wave-loader__ring--2" />
+                <div className="wave-loader__ring wave-loader__ring--3" />
+                <div className="wave-loader__core" />
+              </div>
+              <p style={{ color: "#64748b", fontSize: 14, marginTop: 24 }}>লোড হচ্ছে...</p>
             </div>
           ) : filteredServices.length === 0 ? (
             <div style={{ textAlign: "center", padding: "60px 20px" }}>
@@ -969,9 +965,7 @@ export default function Home() {
             grid-template-columns: 1fr !important;
           }
         }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
+        /* wave loader animation is in globals.css */
       `}</style>
     </div>
   );
