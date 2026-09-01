@@ -784,160 +784,331 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Service Detail Modal */}
+      {/* Full Product Detail Page */}
       {selectedService && (
         <div
+          className="product-detail-page"
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0,0,0,0.5)",
+            background: "white",
             zIndex: 200,
+            overflowY: "auto",
+          }}
+        >
+          {/* Top Bar */}
+          <div style={{
+            background: "linear-gradient(135deg, #1c3528, #2d5a3d)",
+            padding: "14px 20px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            padding: 20,
-          }}
-          onClick={() => setSelectedService(null)}
-        >
-          <div
-            style={{
-              background: "white",
-              borderRadius: 16,
-              maxWidth: 500,
-              width: "100%",
-              maxHeight: "90vh",
-              overflowY: "auto",
-              position: "relative",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close button */}
+            justifyContent: "space-between",
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
+          }}>
             <button
               onClick={() => setSelectedService(null)}
               style={{
-                position: "absolute",
-                top: 12,
-                right: 12,
-                background: "#f3f4f6",
+                background: "rgba(255,255,255,0.15)",
                 border: "none",
-                borderRadius: "50%",
-                width: 36,
-                height: 36,
-                fontSize: 20,
+                color: "white",
+                padding: "8px 18px",
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 600,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                zIndex: 10,
-                color: "#374151",
+                gap: 6,
               }}
             >
-              ✕
+              ← ফিরে যান
             </button>
-
-            {/* Image */}
-            <div style={{ width: "100%", height: 250, background: "#f8f6f1", overflow: "hidden", borderRadius: "16px 16px 0 0" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <img
-                src={selectedService.image}
-                alt={selectedService.name}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                src="/logo.png"
+                alt="PVC Showpiece Bazar"
+                style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", border: "2px solid #c9a96e" }}
               />
+              <span style={{ color: "white", fontWeight: 700, fontSize: 14 }}>PVC Showpiece Bazar</span>
+            </div>
+          </div>
+
+          {/* Product Content */}
+          <div style={{ maxWidth: 1100, margin: "0 auto", padding: "30px 20px 60px" }}>
+            {/* Breadcrumb */}
+            <div style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>
+              <span style={{ cursor: "pointer", color: "#2563eb" }} onClick={() => setSelectedService(null)}>হোম</span>
+              <span style={{ margin: "0 8px" }}>/</span>
+              <span style={{ cursor: "pointer", color: "#2563eb" }} onClick={() => setSelectedService(null)}>সেবাসমূহ</span>
+              <span style={{ margin: "0 8px" }}>/</span>
+              <span>{selectedService.name}</span>
             </div>
 
-            {/* Content */}
-            <div style={{ padding: "20px 24px 24px" }}>
-              {/* Category badge */}
-              <span style={{
-                display: "inline-block",
-                background: "#f0ebe0",
-                color: "#1c3528",
-                padding: "4px 12px",
-                borderRadius: 12,
-                fontSize: 12,
-                fontWeight: 600,
-                marginBottom: 10,
-              }}>
-                {selectedService.category}
-              </span>
+            {/* Two Column Layout */}
+            <div className="product-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "start" }}>
 
-              {/* Name */}
-              <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1c3528", marginBottom: 12, lineHeight: 1.3 }}>
-                {selectedService.name}
-              </h2>
-
-              {/* Full Description */}
-              <p style={{ fontSize: 14, color: "#4b5563", lineHeight: 1.8, marginBottom: 20 }}>
-                {selectedService.description || selectedService.desc}
-              </p>
-
-              {/* Price & Offer */}
-              {selectedService.price !== undefined && selectedService.price !== null && (
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
-                  <span style={{ fontSize: 24, fontWeight: 800, color: "#2563eb" }}>
-                    ৳{selectedService.price}
-                  </span>
-                  {selectedService.offer != null && selectedService.offer > 0 && (
-                    <span style={{
-                      background: "#ef4444",
-                      color: "white",
-                      padding: "4px 12px",
-                      borderRadius: 10,
-                      fontSize: 13,
-                      fontWeight: 700,
-                    }}>
-                      -{selectedService.offer}%
-                    </span>
-                  )}
+              {/* LEFT: Image */}
+              <div>
+                <div style={{
+                  background: "#f8f6f1",
+                  borderRadius: 14,
+                  overflow: "hidden",
+                  border: "1px solid #e8e0d0",
+                }}>
+                  <img
+                    src={selectedService.image}
+                    alt={selectedService.name}
+                    style={{ width: "100%", height: "auto", minHeight: 300, maxHeight: 500, objectFit: "contain", display: "block" }}
+                  />
                 </div>
-              )}
+              </div>
 
-              {/* Divider */}
-              <div style={{ height: 1, background: "#e5e7eb", marginBottom: 20 }} />
+              {/* RIGHT: Details */}
+              <div>
+                {/* Category */}
+                <span style={{
+                  display: "inline-block",
+                  background: "#f0ebe0",
+                  color: "#1c3528",
+                  padding: "4px 12px",
+                  borderRadius: 12,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  marginBottom: 10,
+                }}>
+                  {selectedService.category}
+                </span>
 
-              {/* Action Buttons */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {/* WhatsApp Order */}
+                {/* Name */}
+                <h1 style={{ fontSize: 26, fontWeight: 800, color: "#1c3528", marginBottom: 8, lineHeight: 1.3 }}>
+                  {selectedService.name}
+                </h1>
+
+                {/* Brand */}
+                <p style={{ fontSize: 13, color: "#64748b", marginBottom: 10 }}>
+                  PVC Showpiece Bazar
+                </p>
+
+                {/* Rating Stars */}
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16 }}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span key={star} style={{ color: "#f59e0b", fontSize: 18 }}>★</span>
+                  ))}
+                  <span style={{ fontSize: 13, color: "#64748b", marginLeft: 4 }}>4.8 আউট অফ 5</span>
+                </div>
+
+                {/* Divider */}
+                <div style={{ height: 1, background: "#e5e7eb", marginBottom: 16 }} />
+
+                {/* Price Section */}
+                {selectedService.price !== undefined && selectedService.price !== null && (
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                      {selectedService.offer != null && selectedService.offer > 0 && (
+                        <span style={{
+                          background: "#ef4444",
+                          color: "white",
+                          padding: "3px 10px",
+                          borderRadius: 10,
+                          fontSize: 12,
+                          fontWeight: 700,
+                        }}>
+                          -{selectedService.offer}%
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+                      <span style={{ fontSize: 30, fontWeight: 800, color: "#b91c1c" }}>
+                        ৳{selectedService.price}
+                      </span>
+                      {selectedService.offer != null && selectedService.offer > 0 && (
+                        <span style={{ fontSize: 14, color: "#64748b", textDecoration: "line-through" }}>
+                          ৳{Math.round(selectedService.price / (1 - selectedService.offer / 100))}
+                        </span>
+                      )}
+                    </div>
+                    <p style={{ fontSize: 12, color: "#64748b", marginTop: 6 }}>
+                      সব ট্যাক্স অন্তর্ভুক্ত
+                    </p>
+                  </div>
+                )}
+
+                {/* Divider */}
+                <div style={{ height: 1, background: "#e5e7eb", marginBottom: 16 }} />
+
+                {/* Stock Status */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                  <span style={{ color: "#16a34a", fontWeight: 700, fontSize: 14 }}>✓ স্টকে আছে</span>
+                </div>
+
+                {/* Delivery Info */}
+                <div style={{
+                  background: "#f0fdf4",
+                  border: "1px solid #bbf7d0",
+                  borderRadius: 10,
+                  padding: "12px 16px",
+                  marginBottom: 16,
+                  fontSize: 13,
+                  color: "#166534",
+                }}>
+                  <strong>🚚 ডেলিভারি:</strong> অর্ডার করলে ২-৩ কর্মদিবসের মধ্যে হোম ডেলিভারি
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 20 }}>
+                  <a
+                    href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${selectedService.name}. Price: ৳${selectedService.price}. Please share details.`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
+                      background: "#25D366",
+                      color: "white",
+                      padding: "15px 20px",
+                      borderRadius: 10,
+                      fontSize: 16,
+                      fontWeight: 700,
+                      textDecoration: "none",
+                      textAlign: "center",
+                    }}
+                  >
+                    📱 WhatsApp-এ অর্ডার করুন
+                  </a>
+                  <a
+                    href="tel:+8801336410584"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
+                      background: "#1c3528",
+                      color: "white",
+                      padding: "15px 20px",
+                      borderRadius: 10,
+                      fontSize: 16,
+                      fontWeight: 700,
+                      textDecoration: "none",
+                      textAlign: "center",
+                    }}
+                  >
+                    📞 ফোনে কল করুন
+                  </a>
+                </div>
+
+                {/* Seller Info */}
+                <div style={{
+                  border: "1px solid #e5e7eb",
+                  borderRadius: 10,
+                  padding: "14px 16px",
+                  marginTop: 16,
+                  fontSize: 13,
+                  color: "#374151",
+                }}>
+                  <p style={{ marginBottom: 4 }}><strong>বিক্রেতা:</strong> PVC Showpiece Bazar</p>
+                  <p style={{ marginBottom: 4 }}><strong>📍 অবস্থান:</strong> Barisal, Bangladesh</p>
+                  <p><strong>📞 ফোন:</strong> +880 1336-410584</p>
+                </div>
+              </div>
+            </div>
+
+            {/* About This Item */}
+            <div style={{ marginTop: 40, borderTop: "1px solid #e5e7eb", paddingTop: 30 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: "#1c3528", marginBottom: 16 }}>
+                এই প্রোডাক্ট সম্পর্কে
+              </h2>
+              <div style={{
+                background: "#f8f6f1",
+                borderRadius: 12,
+                padding: "20px 24px",
+                fontSize: 14,
+                color: "#374151",
+                lineHeight: 1.8,
+              }}>
+                {selectedService.description || selectedService.desc}
+              </div>
+            </div>
+
+            {/* Product Highlights */}
+            <div style={{ marginTop: 30 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: "#1c3528", marginBottom: 16 }}>
+                প্রোডাক্ট হাইলাইটস
+              </h2>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: 16,
+              }}>
+                {[
+                  { icon: "✅", label: "মানসম্মত PVC ম্যাটেরিয়াল" },
+                  { icon: "🎨", label: "হাতে তৈরি (Handcrafted)" },
+                  { icon: "🚚", label: "সারা বাংলাদেশে ডেলিভারি" },
+                  { icon: "💰", label: "সাশ্রয়ী মূল্য" },
+                ].map((item, i) => (
+                  <div key={i} style={{
+                    background: "white",
+                    border: "1px solid #e5e7eb",
+                    borderRadius: 10,
+                    padding: "14px 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    fontSize: 14,
+                    color: "#1c3528",
+                    fontWeight: 600,
+                  }}>
+                    <span style={{ fontSize: 20 }}>{item.icon}</span>
+                    {item.label}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom CTA */}
+            <div style={{
+              marginTop: 40,
+              background: "linear-gradient(135deg, #1c3528, #2d5a3d)",
+              borderRadius: 14,
+              padding: "30px",
+              textAlign: "center",
+              color: "white",
+            }}>
+              <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 10 }}>এই প্রোডাক্টটি কিনতে চান?</h3>
+              <p style={{ opacity: 0.85, marginBottom: 20, fontSize: 14 }}>WhatsApp বা ফোনে যোগাযোগ করুন</p>
+              <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
                 <a
                   href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${selectedService.name}. Price: ৳${selectedService.price}. Please share details.`}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 8,
                     background: "#25D366",
                     color: "white",
-                    padding: "14px 20px",
+                    padding: "12px 28px",
                     borderRadius: 10,
                     fontSize: 15,
                     fontWeight: 700,
                     textDecoration: "none",
-                    textAlign: "center",
                   }}
                 >
-                  📱 WhatsApp-এ অর্ডার করুন
+                  📱 WhatsApp
                 </a>
-
-                {/* Phone Call */}
                 <a
                   href="tel:+8801336410584"
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 8,
-                    background: "#1c3528",
-                    color: "white",
-                    padding: "14px 20px",
+                    background: "white",
+                    color: "#1c3528",
+                    padding: "12px 28px",
                     borderRadius: 10,
                     fontSize: 15,
                     fontWeight: 700,
                     textDecoration: "none",
-                    textAlign: "center",
                   }}
                 >
-                  📞 ফোনে কল করুন
+                  📞 ফোন করুন
                 </a>
               </div>
             </div>
@@ -963,6 +1134,12 @@ export default function Home() {
         @media (max-width: 600px) {
           #about > div {
             grid-template-columns: 1fr !important;
+          }
+        }
+        @media (max-width: 768px) {
+          .product-detail-grid {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
           }
         }
         /* wave loader animation is in globals.css */
