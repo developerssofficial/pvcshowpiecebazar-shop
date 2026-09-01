@@ -353,11 +353,7 @@ export default function Home() {
                 margin: "0 auto 16px",
               }} />
               <p style={{ color: "#64748b", fontSize: 14 }}>লোড হচ্ছে...</p>
-              <style jsx global>{`
-                @keyframes spin {
-                  to { transform: rotate(360deg); }
-                }
-              `}</style>
+              {/* spinner animation defined in global style below */}
             </div>
           ) : filteredServices.length === 0 ? (
             <div style={{ textAlign: "center", padding: "60px 20px" }}>
@@ -972,6 +968,9 @@ export default function Home() {
           #about > div {
             grid-template-columns: 1fr !important;
           }
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>
