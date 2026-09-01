@@ -31,6 +31,7 @@ export default function Home() {
   const [services, setServices] = useState<ServiceItem[]>(fallbackServices);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
 
   useEffect(() => {
     fetch("/api/services")
@@ -347,13 +348,14 @@ export default function Home() {
           >
             {filteredServices.map((service) => (
               <div
-                key={service.id}
+                key={service._id || service.id}
                 style={{
                   background: "white",
                   borderRadius: 14,
                   overflow: "hidden",
                   boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
                   transition: "transform 0.2s, box-shadow 0.2s",
+                  cursor: "pointer",
                 }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
@@ -363,6 +365,7 @@ export default function Home() {
                   (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
                   (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)";
                 }}
+                onClick={() => setSelectedService(service)}
               >
                 <div
                   style={{
@@ -399,8 +402,11 @@ export default function Home() {
                   <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 6, color: "#1c3528" }}>
                     {service.name}
                   </h3>
-                  <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.4, marginBottom: 12 }}>
+                  <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.4, marginBottom: 12, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const }}>
                     {service.description || service.desc}
+                  </p>
+                  <p style={{ fontSize: 12, color: "#2563eb", fontWeight: 600, marginBottom: 12, cursor: "pointer" }}>
+                    বিস্তারিত দেখুন →
                   </p>
                   {service.price !== undefined && service.price !== null && (
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
@@ -759,6 +765,167 @@ export default function Home() {
           <p>&copy; {new Date().getFullYear()} PVC Showpiece Bazar. All rights reserved.</p>
         </div>
       </footer>
+
+      {/* Service Detail Modal */}
+      {selectedService && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 200,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20,
+          }}
+          onClick={() => setSelectedService(null)}
+        >
+          <div
+            style={{
+              background: "white",
+              borderRadius: 16,
+              maxWidth: 500,
+              width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setSelectedService(null)}
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                background: "#f3f4f6",
+                border: "none",
+                borderRadius: "50%",
+                width: 36,
+                height: 36,
+                fontSize: 20,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 10,
+                color: "#374151",
+              }}
+            >
+              ✕
+            </button>
+
+            {/* Image */}
+            <div style={{ width: "100%", height: 250, background: "#f8f6f1", overflow: "hidden", borderRadius: "16px 16px 0 0" }}>
+              <img
+                src={selectedService.image}
+                alt={selectedService.name}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </div>
+
+            {/* Content */}
+            <div style={{ padding: "20px 24px 24px" }}>
+              {/* Category badge */}
+              <span style={{
+                display: "inline-block",
+                background: "#f0ebe0",
+                color: "#1c3528",
+                padding: "4px 12px",
+                borderRadius: 12,
+                fontSize: 12,
+                fontWeight: 600,
+                marginBottom: 10,
+              }}>
+                {selectedService.category}
+              </span>
+
+              {/* Name */}
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1c3528", marginBottom: 12, lineHeight: 1.3 }}>
+                {selectedService.name}
+              </h2>
+
+              {/* Full Description */}
+              <p style={{ fontSize: 14, color: "#4b5563", lineHeight: 1.8, marginBottom: 20 }}>
+                {selectedService.description || selectedService.desc}
+              </p>
+
+              {/* Price & Offer */}
+              {selectedService.price !== undefined && selectedService.price !== null && (
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 24 }}>
+                  <span style={{ fontSize: 24, fontWeight: 800, color: "#2563eb" }}>
+                    ৳{selectedService.price}
+                  </span>
+                  {selectedService.offer != null && selectedService.offer > 0 && (
+                    <span style={{
+                      background: "#ef4444",
+                      color: "white",
+                      padding: "4px 12px",
+                      borderRadius: 10,
+                      fontSize: 13,
+                      fontWeight: 700,
+                    }}>
+                      -{selectedService.offer}%
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Divider */}
+              <div style={{ height: 1, background: "#e5e7eb", marginBottom: 20 }} />
+
+              {/* Action Buttons */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {/* WhatsApp Order */}
+                <a
+                  href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${selectedService.name}. Price: ৳${selectedService.price}. Please share details.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                    background: "#25D366",
+                    color: "white",
+                    padding: "14px 20px",
+                    borderRadius: 10,
+                    fontSize: 15,
+                    fontWeight: 700,
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  📱 WhatsApp-এ অর্ডার করুন
+                </a>
+
+                {/* Phone Call */}
+                <a
+                  href="tel:+8801336410584"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                    background: "#1c3528",
+                    color: "white",
+                    padding: "14px 20px",
+                    borderRadius: 10,
+                    fontSize: 15,
+                    fontWeight: 700,
+                    textDecoration: "none",
+                    textAlign: "center",
+                  }}
+                >
+                  📞 ফোনে কল করুন
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Responsive CSS */}
       <style jsx global>{`
