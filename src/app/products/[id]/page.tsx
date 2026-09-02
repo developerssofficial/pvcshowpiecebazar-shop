@@ -1,7 +1,31 @@
 import type { Metadata } from "next";
+import { ObjectId } from "mongodb";
+import { getDb } from "@/lib/mongodb";
 import ProductClient from "./ProductClient";
 
+export const dynamic = "force-dynamic";
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://pvcshowpiecebazar.shop";
+
+async function getProduct(id: string) {
+  try {
+    const db = await getDb();
+    const product = await db.collection("services").findOne({ _id: new ObjectId(id) });
+    if (!product) return null;
+    return {
+      _id: product._id.toString(),
+      name: product.name,
+      description: product.description || "",
+      image: product.image || "",
+      category: product.category || "Showpiece",
+      price: product.price ?? null,
+      offer: product.offer ?? null,
+      inStock: product.inStock !== false,
+    };
+  } catch {
+    return null;
+  }
+}
 
 // Dynamic metadata per product
 export async function generateMetadata({
@@ -10,56 +34,48 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
+  const product = await getProduct(id);
 
-  try {
-    const res = await fetch(`${SITE_URL}/api/services`, { cache: "no-store" });
-    if (!res.ok) return getFallbackMetadata();
+  if (!product) return getFallbackMetadata();
 
-    const services = await res.json();
-    const product = services.find((s: { _id: string }) => s._id === id);
-    if (!product) return getFallbackMetadata();
+  const title = `${product.name} | PVC Showpiece Bazar`;
+  const description = `${product.description.substring(0, 155) || product.name} | ${product.price ? `Price: ৳${product.price}` : "Contact for price"}. PVC Showpiece Bazar, Barisal, Bangladesh. Order via WhatsApp.`;
 
-    const title = `${product.name} | PVC Showpiece Bazar`;
-    const description = `${product.description?.substring(0, 155) || product.name} | ${product.price ? `Price: ৳${product.price}` : "Contact for price"}. PVC Showpiece Bazar, Barisal, Bangladesh. Order via WhatsApp.`;
-
-    return {
+  return {
+    title,
+    description,
+    keywords: [
+      product.name,
+      "PVC showpiece Bangladesh",
+      product.category,
+      "home decoration Bangladesh",
+      "wall decor Bangladesh",
+      "PVC home decor",
+      "custom PVC showpiece",
+    ],
+    openGraph: {
       title,
       description,
-      keywords: [
-        product.name,
-        "PVC showpiece Bangladesh",
-        product.category,
-        "home decoration Bangladesh",
-        "wall decor Bangladesh",
-        "PVC home decor",
-        "custom PVC showpiece",
+      url: `${SITE_URL}/products/${id}`,
+      images: [
+        {
+          url: product.image || `${SITE_URL}/logo.png`,
+          width: 800,
+          height: 600,
+          alt: `${product.name} - PVC Showpiece Bazar`,
+        },
       ],
-      openGraph: {
-        title,
-        description,
-        url: `${SITE_URL}/products/${id}`,
-        images: [
-          {
-            url: product.image || `${SITE_URL}/logo.png`,
-            width: 800,
-            height: 600,
-            alt: `${product.name} - PVC Showpiece Bazar`,
-          },
-        ],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description,
-        images: [product.image || `${SITE_URL}/logo.png`],
-      },
-      alternates: {
-        canonical: `${SITE_URL}/products/${id}`,
-      },
-    };
-  } catch {
-    return getFallbackMetadata();
-  }
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [product.image || `${SITE_URL}/logo.png`],
+    },
+    alternates: {
+      canonical: `${SITE_URL}/products/${id}`,
+    },
+  };
 }
 
 function getFallbackMetadata(): Metadata {
@@ -75,15 +91,7 @@ export default async function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-
-  let product = null;
-  try {
-    const res = await fetch(`${SITE_URL}/api/services`, { cache: "no-store" });
-    if (res.ok) {
-      const services = await res.json();
-      product = services.find((s: { _id: string }) => s._id === id);
-    }
-  } catch {}
+  const product = await getProduct(id);
 
   if (!product) {
     return (
