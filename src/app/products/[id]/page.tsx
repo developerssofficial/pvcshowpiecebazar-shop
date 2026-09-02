@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/mongodb";
 import ProductClient from "./ProductClient";
 
@@ -10,19 +9,37 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://pvcshowpiecebazar.
 async function getProduct(id: string) {
   try {
     const db = await getDb();
-    const product = await db.collection("services").findOne({ _id: new ObjectId(id) });
+    let product = null;
+
+    // Try as ObjectId first
+    try {
+      const { ObjectId } = await import("mongodb");
+      if (ObjectId.isValid(id)) {
+        product = await db.collection("services").findOne({ _id: new ObjectId(id) } as object);
+      }
+    } catch {
+      // not a valid ObjectId, try string match
+    }
+
+    // Fallback: try matching as string _id
+    if (!product) {
+      product = await db.collection("services").findOne({ _id: id as unknown as object });
+    }
+
     if (!product) return null;
+
     return {
-      _id: product._id.toString(),
-      name: product.name,
-      description: product.description || "",
-      image: product.image || "",
-      category: product.category || "Showpiece",
-      price: product.price ?? null,
-      offer: product.offer ?? null,
-      inStock: product.inStock !== false,
+      _id: (product._id as { toString(): string }).toString(),
+      name: product.name as string,
+      description: (product.description as string) || "",
+      image: (product.image as string) || "",
+      category: (product.category as string) || "Showpiece",
+      price: (product.price as number) ?? null,
+      offer: (product.offer as number) ?? null,
+      inStock: (product.inStock as boolean) !== false,
     };
-  } catch {
+  } catch (err) {
+    console.error("Product page error:", err);
     return null;
   }
 }
