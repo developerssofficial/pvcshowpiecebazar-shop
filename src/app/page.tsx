@@ -12,8 +12,9 @@ interface ServiceItem {
   desc?: string;
   image: string;
   category: string;
-  price?: number;
+  price?: number | null;
   offer?: number | null;
+  inStock?: boolean;
 }
 
 const fallbackServices: ServiceItem[] = [
@@ -469,8 +470,8 @@ export default function Home() {
                   <p style={{ fontSize: 12, color: "#1c3528", fontWeight: 600, marginBottom: 12, cursor: "pointer" }}>
                     বিস্তারিত দেখুন →
                   </p>
-                  {/* Add to Cart Button */}
-                  {service.price !== undefined && service.price !== null && (
+                  {/* Add to Cart Button - only if price exists */}
+                  {service.price != null && service.price > 0 && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -501,7 +502,8 @@ export default function Home() {
                       🛒 Add to Cart
                     </button>
                   )}
-                  {service.price !== undefined && service.price !== null && (
+                  {/* Price OR Call for Price */}
+                  {service.price != null && service.price > 0 ? (
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                       <span style={{ fontSize: 18, fontWeight: 700, color: "#1c3528" }}>
                         ৳{service.price}
@@ -519,9 +521,29 @@ export default function Home() {
                         </span>
                       )}
                     </div>
+                  ) : (
+                    <a
+                      href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${service.name}. Please share the price and details.`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        display: "block",
+                        textAlign: "center",
+                        background: "#25D366",
+                        color: "white",
+                        padding: "10px 14px",
+                        borderRadius: 8,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        marginBottom: 10,
+                      }}
+                    >
+                      বিস্তারিত জানতে WhatsApp করুন
+                    </a>
                   )}
                   <a
-                    href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${service.name}. Price: ৳${service.price}. Please share details.`}
+                    href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${service.name}. Please share details and price.`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
@@ -979,7 +1001,7 @@ export default function Home() {
                 <div style={{ height: 1, background: "#e5e7eb", marginBottom: 16 }} />
 
                 {/* Price Section */}
-                {selectedService.price !== undefined && selectedService.price !== null && (
+                {selectedService.price != null && selectedService.price > 0 ? (
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                       {selectedService.offer != null && selectedService.offer > 0 && (
@@ -1009,6 +1031,25 @@ export default function Home() {
                       সব ট্যাক্স অন্তর্ভুক্ত
                     </p>
                   </div>
+                ) : (
+                  <a
+                    href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${selectedService.name}. Please share the price and details.`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "block",
+                      textAlign: "center",
+                      background: "#25D366",
+                      color: "white",
+                      padding: "14px 20px",
+                      borderRadius: 10,
+                      fontSize: 15,
+                      fontWeight: 700,
+                      marginBottom: 16,
+                    }}
+                  >
+                    বিস্তারিত জানতে WhatsApp করুন
+                  </a>
                 )}
 
                 {/* Divider */}
@@ -1016,7 +1057,11 @@ export default function Home() {
 
                 {/* Stock Status */}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                  <span style={{ color: "#16a34a", fontWeight: 700, fontSize: 14 }}>✓ স্টকে আছে</span>
+                  {selectedService.inStock !== false ? (
+                    <span style={{ color: "#16a34a", fontWeight: 700, fontSize: 14 }}>✓ স্টকে আছে</span>
+                  ) : (
+                    <span style={{ color: "#dc2626", fontWeight: 700, fontSize: 14 }}>✗ স্টকে নেই</span>
+                  )}
                 </div>
 
                 {/* Delivery Info */}
@@ -1035,7 +1080,7 @@ export default function Home() {
                 {/* Action Buttons */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 20 }}>
                   {/* Add to Cart */}
-                  {selectedService.price !== undefined && selectedService.price !== null && (
+                  {selectedService.price != null && selectedService.price > 0 && (
                     <button
                       onClick={() =>
                         addItem({
@@ -1068,7 +1113,7 @@ export default function Home() {
                     </button>
                   )}
                   <a
-                    href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${selectedService.name}. Price: ৳${selectedService.price}. Please share details.`}
+                    href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${selectedService.name}. ${selectedService.price ? `Price: ৳${selectedService.price}.` : ""} Please share details.`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
@@ -1190,7 +1235,7 @@ export default function Home() {
               <p style={{ opacity: 0.85, marginBottom: 20, fontSize: 14 }}>WhatsApp বা ফোনে যোগাযোগ করুন</p>
               <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
                 <a
-                  href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${selectedService.name}. Price: ৳${selectedService.price}. Please share details.`}
+                  href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${selectedService.name}. ${selectedService.price ? `Price: ৳${selectedService.price}.` : ""} Please share details.`}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{

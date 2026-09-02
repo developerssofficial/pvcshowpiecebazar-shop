@@ -6,10 +6,11 @@ interface Service {
   _id: string;
   name: string;
   description: string;
-  price: number;
+  price: number | null;
   offer?: string;
   category: string;
   image: string;
+  inStock?: boolean;
 }
 
 export default function AdminPage() {
@@ -31,6 +32,9 @@ export default function AdminPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Stock state
+  const [inStock, setInStock] = useState(true);
 
   // Edit state
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -123,10 +127,11 @@ export default function AdminPage() {
       const serviceData = {
         name: serviceName,
         description,
-        price: Number(price),
+        price: price ? Number(price) : null,
         offer: offer || null,
         category,
         image: imageUrl,
+        inStock,
       };
 
       if (editingId) {
@@ -166,6 +171,7 @@ export default function AdminPage() {
     setPrice("");
     setOffer("");
     setCategory("Showpiece");
+    setInStock(true);
     setImageFile(null);
     setImagePreview("");
     setEditingId(null);
@@ -176,9 +182,10 @@ export default function AdminPage() {
     setEditingId(service._id);
     setServiceName(service.name);
     setDescription(service.description);
-    setPrice(String(service.price));
+    setPrice(service.price != null ? String(service.price) : "");
     setOffer(service.offer || "");
     setCategory(service.category);
+    setInStock(service.inStock !== false);
     setImageFile(null);
     setImagePreview(service.image || "");
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -549,15 +556,14 @@ export default function AdminPage() {
                         fontSize: "0.9rem",
                       }}
                     >
-                      মূল্য (৳) *
+                      মূল্য (৳)
                     </label>
                     <input
                       type="number"
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
-                      required
                       min="0"
-                      placeholder="৳"
+                      placeholder="খালি রাখলে 'Call for Price' হবে"
                       style={{
                         width: "100%",
                         padding: "10px 12px",
@@ -627,6 +633,52 @@ export default function AdminPage() {
                     <option value="Art">Art</option>
                     <option value="Gift">Gift</option>
                   </select>
+                </div>
+
+                {/* In Stock Toggle */}
+                <div style={{ marginBottom: "14px" }}>
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      cursor: "pointer",
+                      fontSize: "0.9rem",
+                      fontWeight: 600,
+                      color: "#333",
+                    }}
+                  >
+                    <div
+                      onClick={() => setInStock(!inStock)}
+                      style={{
+                        width: 48,
+                        height: 26,
+                        borderRadius: 13,
+                        background: inStock ? "#16a34a" : "#d1d5db",
+                        position: "relative",
+                        transition: "background 0.2s",
+                        cursor: "pointer",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50%",
+                          background: "white",
+                          position: "absolute",
+                          top: 2,
+                          left: inStock ? 24 : 2,
+                          transition: "left 0.2s",
+                          boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                        }}
+                      />
+                    </div>
+                    <span>
+                      {inStock ? "✅ স্টকে আছে (In Stock)" : "❌ স্টকে নেই (Out of Stock)"}
+                    </span>
+                  </label>
                 </div>
 
                 <div style={{ marginBottom: "18px" }}>
@@ -822,8 +874,13 @@ export default function AdminPage() {
                               fontSize: "0.9rem",
                             }}
                           >
-                            ৳{service.price}
+                            {service.price != null && service.price > 0 ? `৳${service.price}` : "Call for Price"}
                           </span>
+                          {service.inStock !== false ? (
+                            <span style={{ background: "#d4edda", color: "#155724", padding: "2px 8px", borderRadius: "10px", fontSize: "0.7rem", fontWeight: 600 }}>In Stock</span>
+                          ) : (
+                            <span style={{ background: "#f8d7da", color: "#721c24", padding: "2px 8px", borderRadius: "10px", fontSize: "0.7rem", fontWeight: 600 }}>Out of Stock</span>
+                          )}
                           {service.offer && (
                             <span
                               style={{

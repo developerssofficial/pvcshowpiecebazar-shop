@@ -19,7 +19,7 @@ export async function generateMetadata({
     if (!product) return getFallbackMetadata();
 
     const title = `${product.name} | PVC Showpiece Bazar`;
-    const description = `${product.description?.substring(0, 155) || product.name} | Price: ৳${product.price || "Contact for price"}. PVC Showpiece Bazar, Barisal, Bangladesh. Order via WhatsApp.`;
+    const description = `${product.description?.substring(0, 155) || product.name} | ${product.price ? `Price: ৳${product.price}` : "Contact for price"}. PVC Showpiece Bazar, Barisal, Bangladesh. Order via WhatsApp.`;
 
     return {
       title,
@@ -99,9 +99,10 @@ export default async function ProductPage({
   }
 
   const desc = product.description || "";
-  const price = product.price || 0;
+  const price = product.price || null;
   const offer = product.offer || 0;
-  const originalPrice = offer > 0 ? Math.round(price / (1 - offer / 100)) : null;
+  const inStock = product.inStock !== false;
+  const originalPrice = price && offer > 0 ? Math.round(price / (1 - offer / 100)) : null;
 
   // JSON-LD Product Schema
   const productSchema = {
@@ -118,8 +119,10 @@ export default async function ProductPage({
       "@type": "Offer",
       url: `${SITE_URL}/products/${id}`,
       priceCurrency: "BDT",
-      price: price,
-      availability: "https://schema.org/InStock",
+      ...(price ? { price } : {}),
+      availability: inStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
       seller: {
         "@type": "Organization",
@@ -192,7 +195,7 @@ export default async function ProductPage({
               <div style={{ height: 1, background: "#e5e7eb", marginBottom: 16 }} />
 
               {/* Price */}
-              {price > 0 && (
+              {price != null && price > 0 ? (
                 <div style={{ marginBottom: 18 }}>
                   {offer > 0 && <span style={{ background: "#ef4444", color: "white", padding: "3px 10px", borderRadius: 12, fontSize: 12, fontWeight: 700, marginRight: 10 }}>-{offer}% ছাড়</span>}
                   <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 4 }}>
@@ -201,13 +204,26 @@ export default async function ProductPage({
                   </div>
                   <p style={{ fontSize: 12, color: "#6b7280", marginTop: 6 }}>সব ট্যাক্স অন্তর্ভুক্ত</p>
                 </div>
+              ) : (
+                <a
+                  href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${product.name}. Please share the price and details.`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: "block", textAlign: "center", background: "#25D366", color: "white", padding: "14px 20px", borderRadius: 10, fontSize: 15, fontWeight: 700, marginBottom: 18, textDecoration: "none" }}
+                >
+                  বিস্তারিত জানতে WhatsApp করুন
+                </a>
               )}
 
               <div style={{ height: 1, background: "#e5e7eb", marginBottom: 16 }} />
 
               {/* Stock + Delivery */}
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
-                <span style={{ color: "#16a34a", fontWeight: 700, fontSize: 14 }}>✓ স্টকে আছে</span>
+                {inStock ? (
+                  <span style={{ color: "#16a34a", fontWeight: 700, fontSize: 14 }}>✓ স্টকে আছে</span>
+                ) : (
+                  <span style={{ color: "#dc2626", fontWeight: 700, fontSize: 14 }}>✗ স্টকে নেই</span>
+                )}
               </div>
 
               <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, padding: "10px 14px", marginBottom: 20, fontSize: 13, color: "#166534" }}>

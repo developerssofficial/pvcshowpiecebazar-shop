@@ -81,11 +81,11 @@ export async function PUT(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, description, image, category, price, offer } = body;
+    const { name, description, image, category, price, offer, inStock } = body;
 
-    if (!name || !description || !image || price === undefined || price === null) {
+    if (!name || !description || !image) {
       return NextResponse.json(
-        { error: "Name, description, image and price are required" },
+        { error: "Name, description, and image are required" },
         { status: 400 }
       );
     }
@@ -96,8 +96,9 @@ export async function POST(req: NextRequest) {
       description,
       image,
       category: category || "Showpiece",
-      price,
+      price: price ?? null,
       offer: offer || null,
+      inStock: inStock !== false,
       createdAt: new Date(),
     };
 
