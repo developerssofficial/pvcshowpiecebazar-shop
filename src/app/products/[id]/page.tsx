@@ -1,116 +1,67 @@
-import type { Metadata } from "next";
-import { getDb } from "@/lib/mongodb";
+"use client";
+
+import { useState, useEffect, use } from "react";
 import ProductClient from "./ProductClient";
 
-export const dynamic = "force-dynamic";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://pvcshowpiecebazar.shop";
-
-async function getProduct(id: string) {
-  try {
-    const db = await getDb();
-    let product = null;
-
-    // Try as ObjectId first
-    try {
-      const { ObjectId } = await import("mongodb");
-      if (ObjectId.isValid(id)) {
-        product = await db.collection("services").findOne({ _id: new ObjectId(id) } as object);
-      }
-    } catch {
-      // not a valid ObjectId, try string match
-    }
-
-    // Fallback: try matching as string _id
-    if (!product) {
-      product = await db.collection("services").findOne({ _id: id as unknown as object });
-    }
-
-    if (!product) return null;
-
-    return {
-      _id: (product._id as { toString(): string }).toString(),
-      name: product.name as string,
-      description: (product.description as string) || "",
-      image: (product.image as string) || "",
-      category: (product.category as string) || "Showpiece",
-      price: (product.price as number) ?? null,
-      offer: (product.offer as number) ?? null,
-      inStock: (product.inStock as boolean) !== false,
-    };
-  } catch (err) {
-    console.error("Product page error:", err);
-    return null;
-  }
-}
-
-// Dynamic metadata per product
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}): Promise<Metadata> {
-  const { id } = await params;
-  const product = await getProduct(id);
-
-  if (!product) return getFallbackMetadata();
-
-  const title = `${product.name} | PVC Showpiece Bazar`;
-  const description = `${product.description.substring(0, 155) || product.name} | ${product.price ? `Price: ৳${product.price}` : "Contact for price"}. PVC Showpiece Bazar, Barisal, Bangladesh. Order via WhatsApp.`;
-
-  return {
-    title,
-    description,
-    keywords: [
-      product.name,
-      "PVC showpiece Bangladesh",
-      product.category,
-      "home decoration Bangladesh",
-      "wall decor Bangladesh",
-      "PVC home decor",
-      "custom PVC showpiece",
-    ],
-    openGraph: {
-      title,
-      description,
-      url: `${SITE_URL}/products/${id}`,
-      images: [
-        {
-          url: product.image || `${SITE_URL}/logo.png`,
-          width: 800,
-          height: 600,
-          alt: `${product.name} - PVC Showpiece Bazar`,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [product.image || `${SITE_URL}/logo.png`],
-    },
-    alternates: {
-      canonical: `${SITE_URL}/products/${id}`,
-    },
-  };
-}
-
-function getFallbackMetadata(): Metadata {
-  return {
-    title: "PVC Showpiece Bazar | Home Decor & Lifestyle",
-    description: "Premium PVC showpieces, home decoration & wall decor in Bangladesh.",
-  };
-}
-
-export default async function ProductPage({
+export default function ProductPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const product = await getProduct(id);
+  const { id } = use(params);
+  const [product, setProduct] = useState<{
+    _id: string;
+    name: string;
+    description: string;
+    image: string;
+    category: string;
+    price: number | null;
+    offer: number | null;
+    inStock: boolean;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  if (!product) {
+  useEffect(() => {
+    fetch("/api/services")
+      .then((res) => res.json())
+      .then((data) => {
+        const found = Array.isArray(data)
+          ? data.find((s: { _id: string }) => s._id === id)
+          : null;
+        if (found) {
+          setProduct({
+            _id: found._id,
+            name: found.name,
+            description: found.description || "",
+            image: found.image || "",
+            category: found.category || "Showpiece",
+            price: found.price ?? null,
+            offer: found.offer ?? null,
+            inStock: found.inStock !== false,
+          });
+        } else {
+          setError(true);
+        }
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="wave-loader" style={{ width: 80, height: 80, position: "relative" }}>
+          <div className="wave-loader__ring wave-loader__ring--1" />
+          <div className="wave-loader__ring wave-loader__ring--2" />
+          <div className="wave-loader__ring wave-loader__ring--3" />
+          <div className="wave-loader__core" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center", padding: 20 }}>
