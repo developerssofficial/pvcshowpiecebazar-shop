@@ -32,6 +32,9 @@ export default function AdminPage() {
   const [imagePreview, setImagePreview] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Edit state
+  const [editingId, setEditingId] = useState<string | null>(null);
+
   // Messages
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -103,7 +106,7 @@ export default function AdminPage() {
     setSubmitting(true);
 
     try {
-      let imageUrl = "";
+      let imageUrl = imagePreview || "";
 
       if (imageFile) {
         const formData = new FormData();
@@ -121,29 +124,33 @@ export default function AdminPage() {
         name: serviceName,
         description,
         price: Number(price),
-        offer: offer || undefined,
+        offer: offer || null,
         category,
         image: imageUrl,
       };
 
-      const res = await fetch("/api/services", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(serviceData),
-      });
+      if (editingId) {
+        // Edit mode - PUT request
+        const res = await fetch(`/api/services?id=${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(serviceData),
+        });
+        if (!res.ok) throw new Error("সেবা আপডেট করা ব্যর্থ হয়েছে");
+        setSuccessMsg("সেবা সফলভাবে আপডেট হয়েছে!");
+        setEditingId(null);
+      } else {
+        // Add mode - POST request
+        const res = await fetch("/api/services", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(serviceData),
+        });
+        if (!res.ok) throw new Error("সেবা যোগ করা ব্যর্থ হয়েছে");
+        setSuccessMsg("সেবা সফলভাবে যোগ হয়েছে!");
+      }
 
-      if (!res.ok) throw new Error("সেবা যোগ করা ব্যর্থ হয়েছে");
-
-      setSuccessMsg("সেবা সফলভাবে যোগ হয়েছে!");
-      setServiceName("");
-      setDescription("");
-      setPrice("");
-      setOffer("");
-      setCategory("Showpiece");
-      setImageFile(null);
-      setImagePreview("");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-
+      resetForm();
       fetchServices();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "কিছু ভুল হয়েছে";
@@ -151,6 +158,31 @@ export default function AdminPage() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const resetForm = () => {
+    setServiceName("");
+    setDescription("");
+    setPrice("");
+    setOffer("");
+    setCategory("Showpiece");
+    setImageFile(null);
+    setImagePreview("");
+    setEditingId(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleEdit = (service: Service) => {
+    setEditingId(service._id);
+    setServiceName(service.name);
+    setDescription(service.description);
+    setPrice(String(service.price));
+    setOffer(service.offer || "");
+    setCategory(service.category);
+    setImageFile(null);
+    setImagePreview(service.image || "");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSeed = async () => {
@@ -413,9 +445,30 @@ export default function AdminPage() {
                   margin: "0 0 20px 0",
                   color: "#1c3528",
                   fontSize: "1.2rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
               >
-                নতুন সেবা যোগ করুন
+                <span>{editingId ? "সেবা এডিট করুন" : "নতুন সেবা যোগ করুন"}</span>
+                {editingId && (
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    style={{
+                      padding: "6px 14px",
+                      background: "#6c757d",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                      fontSize: "0.8rem",
+                      fontWeight: 600,
+                    }}
+                  >
+                    বাতিল করুন
+                  </button>
+                )}
               </h2>
 
               <form onSubmit={handleAddService}>
@@ -621,7 +674,7 @@ export default function AdminPage() {
                   style={{
                     width: "100%",
                     padding: "12px",
-                    background: "#1c3528",
+                    background: editingId ? "#2563eb" : "#1c3528",
                     color: "#f0ebe0",
                     border: "none",
                     borderRadius: "8px",
@@ -632,7 +685,9 @@ export default function AdminPage() {
                     transition: "opacity 0.2s",
                   }}
                 >
-                  {submitting ? "যোগ হচ্ছে..." : "সেবা যোগ করুন"}
+                  {submitting
+                    ? editingId ? "আপডেট হচ্ছে..." : "যোগ হচ্ছে..."
+                    : editingId ? "পরিবর্তন সেভ করুন" : "সেবা যোগ করুন"}
                 </button>
               </form>
             </div>
@@ -798,6 +853,29 @@ export default function AdminPage() {
                         </div>
                       </div>
 
+                      <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+                      <button
+                        onClick={() => handleEdit(service)}
+                        style={{
+                          padding: "6px 14px",
+                          background: "#2563eb",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "6px",
+                          cursor: "pointer",
+                          fontSize: "0.8rem",
+                          fontWeight: 600,
+                          transition: "background 0.2s",
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background = "#1d4ed8")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background = "#2563eb")
+                        }
+                      >
+                        এডিট
+                      </button>
                       <button
                         onClick={() => handleDelete(service._id)}
                         style={{
@@ -809,7 +887,6 @@ export default function AdminPage() {
                           cursor: "pointer",
                           fontSize: "0.8rem",
                           fontWeight: 600,
-                          flexShrink: 0,
                           transition: "background 0.2s",
                         }}
                         onMouseEnter={(e) =>
@@ -821,6 +898,7 @@ export default function AdminPage() {
                       >
                         মুছুন
                       </button>
+                      </div>
                     </div>
                   ))
                 )}
