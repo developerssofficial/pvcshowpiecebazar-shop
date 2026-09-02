@@ -461,12 +461,9 @@ export default function Home() {
                   >
                     {service.category}
                   </span>
-                  <h3 style={{ fontSize: 17, fontWeight: 700, marginBottom: 6, color: "#1c3528" }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: "#1c3528", lineHeight: 1.3 }}>
                     {service.name}
                   </h3>
-                  <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.4, marginBottom: 12, overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const }}>
-                    {service.description || service.desc}
-                  </p>
                   <p style={{ fontSize: 12, color: "#1c3528", fontWeight: 600, marginBottom: 12, cursor: "pointer" }}>
                     বিস্তারিত দেখুন →
                   </p>
