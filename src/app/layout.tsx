@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./Providers";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://pvcshowpiecebazar.shop";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "PVC Showpiece Bazar | Custom PVC Home Decor & Showpieces in Bangladesh",
     template: "%s | PVC Showpiece Bazar",
@@ -30,14 +33,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "bn_BD",
-    url: "https://pvcshowpiecebazar.shop",
+    url: SITE_URL,
     siteName: "PVC Showpiece Bazar",
     title: "PVC Showpiece Bazar | Premium PVC Home Decor & Showpieces",
     description:
       "Shop premium handcrafted PVC showpieces, home decoration, wall decor & custom showpieces in Bangladesh. Free delivery across Bangladesh.",
     images: [
       {
-        url: "https://pvcshowpiecebazar.shop/logo.png",
+        url: `${SITE_URL}/logo.png`,
         width: 1200,
         height: 630,
         alt: "PVC Showpiece Bazar - Premium PVC Home Decor",
@@ -49,7 +52,7 @@ export const metadata: Metadata = {
     title: "PVC Showpiece Bazar | Premium PVC Home Decor & Showpieces",
     description:
       "Shop premium handcrafted PVC showpieces, home decoration, wall decor & custom showpieces in Bangladesh.",
-    images: ["https://pvcshowpiecebazar.shop/logo.png"],
+    images: [`${SITE_URL}/logo.png`],
   },
   robots: {
     index: true,
@@ -60,7 +63,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://pvcshowpiecebazar.shop",
+    canonical: SITE_URL,
   },
 };
 
@@ -73,8 +76,8 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "PVC Showpiece Bazar",
-    url: "https://pvcshowpiecebazar.shop",
-    logo: "https://pvcshowpiecebazar.shop/logo.png",
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo.png`,
     description: "Premium PVC showpieces, home decoration, wall decor & custom showpieces in Bangladesh",
     address: {
       "@type": "PostalAddress",
@@ -94,7 +97,7 @@ export default function RootLayout({
     "@type": "ItemList",
     name: "PVC Showpieces & Home Decor",
     description: "Premium handcrafted PVC showpieces and home decoration items",
-    url: "https://pvcshowpiecebazar.shop",
+    url: SITE_URL,
     numberOfItems: 8,
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Custom PVC Showpiece" },
@@ -112,6 +115,7 @@ export default function RootLayout({
     <html lang="bn">
       <head>
         <link rel="icon" href="/logo.png" />
+        <link rel="canonical" href={SITE_URL} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

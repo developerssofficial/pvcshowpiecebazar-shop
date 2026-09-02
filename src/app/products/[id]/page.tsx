@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import ProductClient from "./ProductClient";
 
-const SITE_URL = "https://pvcshowpiecebazar.shop";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://pvcshowpiecebazar.shop";
 
 // Dynamic metadata per product
 export async function generateMetadata({

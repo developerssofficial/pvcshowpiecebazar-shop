@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = "https://pvcshowpiecebazar.shop";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://pvcshowpiecebazar.shop";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseEntries: MetadataRoute.Sitemap = [
