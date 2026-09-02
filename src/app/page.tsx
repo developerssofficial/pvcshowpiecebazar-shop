@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useCart } from "./context/CartContext";
+import CartSidebar from "./components/CartSidebar";
 
 interface ServiceItem {
   _id?: string;
@@ -33,6 +35,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
+  const { addItem, totalItems, setIsOpen: setCartOpen } = useCart();
 
   useEffect(() => {
     fetch("/api/services")
@@ -113,7 +116,47 @@ export default function Home() {
             <a href="#contact" style={{ fontSize: 15, fontWeight: 500 }}>Contact</a>
           </nav>
 
-          {/* Mobile Menu Button */}
+          {/* Cart + Mobile Menu */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {/* Cart Button */}
+            <button
+              onClick={() => setCartOpen(true)}
+              style={{
+                background: "rgba(255,255,255,0.15)",
+                border: "none",
+                color: "white",
+                padding: "8px 12px",
+                borderRadius: 6,
+                cursor: "pointer",
+                fontSize: 20,
+                position: "relative",
+              }}
+            >
+              &#128722;
+              {totalItems > 0 && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: -4,
+                    right: -4,
+                    background: "#c9a96e",
+                    color: "#1c3528",
+                    borderRadius: "50%",
+                    width: 20,
+                    height: 20,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 11,
+                    fontWeight: 700,
+                  }}
+                >
+                  {totalItems}
+                </span>
+              )}
+            </button>
+
+            {/* Mobile Menu Button */}
           <button
             className="mobile-menu-btn"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -130,6 +173,7 @@ export default function Home() {
           >
             &#9776;
           </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -425,6 +469,38 @@ export default function Home() {
                   <p style={{ fontSize: 12, color: "#1c3528", fontWeight: 600, marginBottom: 12, cursor: "pointer" }}>
                     বিস্তারিত দেখুন →
                   </p>
+                  {/* Add to Cart Button */}
+                  {service.price !== undefined && service.price !== null && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addItem({
+                          _id: service._id,
+                          id: service.id,
+                          name: service.name,
+                          image: service.image,
+                          price: service.price!,
+                          offer: service.offer,
+                          category: service.category,
+                        });
+                      }}
+                      style={{
+                        width: "100%",
+                        background: "#c9a96e",
+                        color: "#1c3528",
+                        border: "none",
+                        padding: "9px 0",
+                        borderRadius: 8,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        marginBottom: 10,
+                        letterSpacing: 0.3,
+                      }}
+                    >
+                      🛒 Add to Cart
+                    </button>
+                  )}
                   {service.price !== undefined && service.price !== null && (
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                       <span style={{ fontSize: 18, fontWeight: 700, color: "#1c3528" }}>
@@ -958,6 +1034,39 @@ export default function Home() {
 
                 {/* Action Buttons */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 20 }}>
+                  {/* Add to Cart */}
+                  {selectedService.price !== undefined && selectedService.price !== null && (
+                    <button
+                      onClick={() =>
+                        addItem({
+                          _id: selectedService._id,
+                          id: selectedService.id,
+                          name: selectedService.name,
+                          image: selectedService.image,
+                          price: selectedService.price!,
+                          offer: selectedService.offer,
+                          category: selectedService.category,
+                        })
+                      }
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                        background: "#c9a96e",
+                        color: "#1c3528",
+                        padding: "15px 20px",
+                        borderRadius: 10,
+                        fontSize: 16,
+                        fontWeight: 700,
+                        border: "none",
+                        cursor: "pointer",
+                        textAlign: "center",
+                      }}
+                    >
+                      🛒 কার্টে যোগ করুন
+                    </button>
+                  )}
                   <a
                     href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${selectedService.name}. Price: ৳${selectedService.price}. Please share details.`}
                     target="_blank"
@@ -1143,7 +1252,27 @@ export default function Home() {
           }
         }
         /* wave loader animation is in globals.css */
+
+        /* Cart sidebar animation */
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @media (max-width: 768px) {
+          .checkout-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .checkout-submit-btn {
+            display: block !important;
+          }
+          .checkout-submit-desktop {
+            display: none !important;
+          }
+        }
       `}</style>
+
+      {/* Cart Sidebar */}
+      <CartSidebar />
     </div>
   );
 }
