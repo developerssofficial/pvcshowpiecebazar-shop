@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useCart } from "./context/CartContext";
 import CartSidebar from "./components/CartSidebar";
 
@@ -22,7 +23,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
+  const router = useRouter();
   const { addItem, totalItems, setIsOpen: setCartOpen } = useCart();
 
   useEffect(() => {
@@ -120,7 +121,7 @@ export default function Home() {
                 <div key={service._id || service.id} style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", transition: "transform 0.2s, box-shadow 0.2s", cursor: "pointer" }}
                   onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.1)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)"; }}
-                  onClick={() => setSelectedService(service)}
+                  onClick={() => service._id && router.push(`/products/${service._id}`)}
                 >
                   <div style={{ width: "100%", height: 220, background: "#f0ebe0", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
                     <img src={service.image} alt={service.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -199,91 +200,6 @@ export default function Home() {
         </div>
         <div style={{ borderTop: "1px solid #374151", paddingTop: 18, textAlign: "center", fontSize: 12 }}><p>&copy; {new Date().getFullYear()} PVC Showpiece Bazar. All rights reserved.</p></div>
       </footer>
-
-      {/* Product Detail Modal */}
-      {selectedService && (
-        <div className="product-detail-page" style={{ position: "fixed", inset: 0, background: "white", zIndex: 200, overflowY: "auto" }}>
-          <div style={{ background: "linear-gradient(135deg, #1c3528, #2d5a3d)", padding: "14px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 10 }}>
-            <button onClick={() => setSelectedService(null)} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "white", padding: "8px 18px", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>← ফিরে যান</button>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <img src="/logo.png" alt="Logo" style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", border: "2px solid #c9a96e" }} />
-              <span style={{ color: "white", fontWeight: 700, fontSize: 14 }}>PVC Showpiece Bazar</span>
-            </div>
-          </div>
-
-          <div style={{ maxWidth: 1100, margin: "0 auto", padding: "30px 20px 60px" }}>
-            <div style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>
-              <span style={{ cursor: "pointer", color: "#1c3528" }} onClick={() => setSelectedService(null)}>হোম</span>
-              <span style={{ margin: "0 8px" }}>/</span>
-              <span>{selectedService.name}</span>
-            </div>
-
-            <div className="product-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40, alignItems: "start" }}>
-              <div style={{ background: "#f0ebe0", borderRadius: 14, overflow: "hidden", border: "1px solid #e8e0d0" }}>
-                <img src={selectedService.image} alt={selectedService.name} style={{ width: "100%", height: "auto", minHeight: 300, maxHeight: 500, objectFit: "contain", display: "block" }} />
-              </div>
-
-              <div>
-                <span style={{ display: "inline-block", background: "#f0ebe0", color: "#1c3528", padding: "4px 12px", borderRadius: 12, fontSize: 12, fontWeight: 600, marginBottom: 10 }}>{selectedService.category}</span>
-                <h1 style={{ fontSize: 26, fontWeight: 800, color: "#1c3528", marginBottom: 8, lineHeight: 1.3 }}>{selectedService.name}</h1>
-                <p style={{ fontSize: 13, color: "#64748b", marginBottom: 10 }}>PVC Showpiece Bazar</p>
-
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 16 }}>
-                  {[1,2,3,4,5].map((s) => <span key={s} style={{ color: "#f59e0b", fontSize: 18 }}>★</span>)}
-                  <span style={{ fontSize: 13, color: "#64748b", marginLeft: 4 }}>4.8</span>
-                </div>
-
-                <div style={{ height: 1, background: "#e5e7eb", marginBottom: 16 }} />
-
-                {/* Price */}
-                {selectedService.price != null && selectedService.price > 0 ? (
-                  <div style={{ marginBottom: 16 }}>
-                    {selectedService.offer != null && selectedService.offer > 0 && <span style={{ background: "#ef4444", color: "white", padding: "3px 10px", borderRadius: 10, fontSize: 12, fontWeight: 700 }}>-{selectedService.offer}%</span>}
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 4 }}>
-                      <span style={{ fontSize: 30, fontWeight: 800, color: "#b91c1c" }}>৳{selectedService.price}</span>
-                      {selectedService.offer != null && selectedService.offer > 0 && <span style={{ fontSize: 14, color: "#64748b", textDecoration: "line-through" }}>৳{Math.round(selectedService.price / (1 - selectedService.offer / 100))}</span>}
-                    </div>
-                    <p style={{ fontSize: 12, color: "#64748b", marginTop: 6 }}>সব ট্যাক্স অন্তর্ভুক্ত</p>
-                  </div>
-                ) : (
-                  <a href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${selectedService.name}. Please share the price and details.`} target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", background: "#25D366", color: "white", padding: "14px 20px", borderRadius: 10, fontSize: 15, fontWeight: 700, marginBottom: 16 }}>বিস্তারিত জানতে WhatsApp করুন</a>
-                )}
-
-                <div style={{ height: 1, background: "#e5e7eb", marginBottom: 16 }} />
-
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                  {selectedService.inStock !== false ? <span style={{ color: "#16a34a", fontWeight: 700, fontSize: 14 }}>✓ স্টকে আছে</span> : <span style={{ color: "#dc2626", fontWeight: 700, fontSize: 14 }}>✗ স্টকে নেই</span>}
-                </div>
-
-                <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 13, color: "#166534" }}>
-                  <strong>🚚 ডেলিভারি:</strong> অর্ডার করলে ২-৩ কর্মদিবসের মধ্যে হোম ডেলিভারি
-                </div>
-
-                {/* Buttons */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 20 }}>
-                  {selectedService.price != null && selectedService.price > 0 && (
-                    <button onClick={() => addItem({ _id: selectedService._id, id: selectedService.id, name: selectedService.name, image: selectedService.image, price: selectedService.price!, offer: selectedService.offer, category: selectedService.category })} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#c9a96e", color: "#1c3528", padding: "15px 20px", borderRadius: 10, fontSize: 16, fontWeight: 700, border: "none", cursor: "pointer", textAlign: "center" }}>🛒 কার্টে যোগ করুন</button>
-                  )}
-                  <a href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${selectedService.name}. ${selectedService.price ? `Price: ৳${selectedService.price}.` : ""} Please share details.`} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#25D366", color: "white", padding: "15px 20px", borderRadius: 10, fontSize: 16, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>📱 WhatsApp-এ অর্ডার করুন</a>
-                  <a href="tel:+8801336410584" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#1c3528", color: "white", padding: "15px 20px", borderRadius: 10, fontSize: 16, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>📞 ফোনে কল করুন</a>
-                </div>
-
-                <div style={{ border: "1px solid #e5e7eb", borderRadius: 10, padding: "14px 16px", marginTop: 16, fontSize: 13, color: "#374151" }}>
-                  <p style={{ marginBottom: 4 }}><strong>বিক্রেতা:</strong> PVC Showpiece Bazar</p>
-                  <p style={{ marginBottom: 4 }}><strong>📍 অবস্থান:</strong> Barisal, Bangladesh</p>
-                  <p><strong>📞 ফোন:</strong> +880 1336-410584</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Description */}
-            <div style={{ marginTop: 40, borderTop: "1px solid #e5e7eb", paddingTop: 30 }}>
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: "#1c3528", marginBottom: 16 }}>এই প্রোডাক্ট সম্পর্কে</h2>
-              <div style={{ background: "#f0ebe0", borderRadius: 12, padding: "20px 24px", fontSize: 14, color: "#374151", lineHeight: 1.8 }}>{selectedService.description || selectedService.desc}</div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* CSS */}
       <style jsx global>{`
