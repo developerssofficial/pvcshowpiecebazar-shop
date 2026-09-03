@@ -1,33 +1,59 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { useCart } from "../../context/CartContext";
 import CartSidebar from "../../components/CartSidebar";
 
 export default function ProductPage() {
+  const params = useParams();
+  const rawId = params?.id;
+  const id = Array.isArray(rawId) ? rawId[0] : (rawId as string);
+
   const [product, setProduct] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { addItem, totalItems, setIsOpen: setCartOpen } = useCart();
 
   useEffect(() => {
-    const id = window.location.pathname.split("/").pop();
-    if (!id) { setError(true); setLoading(false); return; }
+    const currentId = id || (typeof window !== "undefined" ? window.location.pathname.split("/").filter(Boolean).pop() : "");
+    if (!currentId) {
+      setError(true);
+      setLoading(false);
+      return;
+    }
 
-    fetch("/api/services")
-      .then((res) => res.json())
+    // Try single item endpoint first, fallback to all services list
+    fetch(`/api/services?id=${encodeURIComponent(currentId)}`)
+      .then((res) => {
+        if (res.ok) return res.json();
+        throw new Error("Single fetch failed");
+      })
       .then((data) => {
-        const list = Array.isArray(data) ? data : [];
-        const found = list.find((s: Record<string, unknown>) => String(s._id) === id);
-        if (found) {
-          setProduct(found);
+        if (data && (data._id || data.name)) {
+          setProduct(data);
+          setLoading(false);
         } else {
-          setError(true);
+          throw new Error("Invalid single product");
         }
       })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
+      .catch(() => {
+        // Fallback to fetching all services
+        fetch("/api/services")
+          .then((res) => res.json())
+          .then((data) => {
+            const list = Array.isArray(data) ? data : [];
+            const found = list.find((s: Record<string, unknown>) => String(s._id) === currentId || String(s.id) === currentId);
+            if (found) {
+              setProduct(found);
+            } else {
+              setError(true);
+            }
+          })
+          .catch(() => setError(true))
+          .finally(() => setLoading(false));
+      });
+  }, [id]);
 
   if (loading) {
     return (
@@ -55,10 +81,17 @@ export default function ProductPage() {
     );
   }
 
-  const price = product.price as number | null;
-  const offer = (product.offer as number) || 0;
+  const price = typeof product.price === "number" ? product.price : (product.price ? parseFloat(String(product.price).replace(/[^0-9.]/g, "")) : null);
+  
+  let offer = 0;
+  if (typeof product.offer === "number") {
+    offer = product.offer;
+  } else if (typeof product.offer === "string") {
+    offer = parseFloat(product.offer.replace(/[^0-9.]/g, "")) || 0;
+  }
+
   const inStock = product.inStock !== false;
-  const desc = (product.description as string) || "";
+  const desc = (product.description as string) || (product.desc as string) || "";
   const name = (product.name as string) || "";
   const category = (product.category as string) || "";
   const image = (product.image as string) || "";

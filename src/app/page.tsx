@@ -117,34 +117,39 @@ export default function Home() {
             <div style={{ textAlign: "center", padding: "60px 20px" }}><p style={{ color: "#64748b", fontSize: 16 }}>কোনো সেবা পাওয়া যায়নি।</p></div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 25 }}>
-              {filteredServices.map((service) => (
-                <div key={service._id || service.id} style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", transition: "transform 0.2s, box-shadow 0.2s", cursor: "pointer" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.1)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)"; }}
-                  onClick={() => service._id && router.push(`/products/${service._id}`)}
-                >
-                  <div style={{ width: "100%", height: 220, background: "#f0ebe0", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                    <img src={service.image} alt={service.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              {filteredServices.map((service) => {
+                const prodId = service._id || service.id;
+                return (
+                  <div
+                    key={prodId || service.name}
+                    style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", transition: "transform 0.2s, box-shadow 0.2s", cursor: "pointer" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.1)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)"; }}
+                    onClick={() => prodId && router.push(`/products/${prodId}`)}
+                  >
+                    <div style={{ width: "100%", height: 220, background: "#f0ebe0", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                      <img src={service.image} alt={service.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+                    <div style={{ padding: 18 }}>
+                      <span style={{ display: "inline-block", background: "#f0ebe0", color: "#1c3528", padding: "3px 10px", borderRadius: 12, fontSize: 11, fontWeight: 600, marginBottom: 8 }}>{service.category}</span>
+                      <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: "#1c3528", lineHeight: 1.3 }}>{service.name}</h3>
+                      <p style={{ fontSize: 12, color: "#1c3528", fontWeight: 600, marginBottom: 12 }}>বিস্তারিত দেখুন →</p>
+                      {service.price != null && service.price > 0 && (
+                        <button onClick={(e) => { e.stopPropagation(); addItem({ _id: service._id, id: service.id, name: service.name, image: service.image, price: service.price!, offer: service.offer, category: service.category }); }} style={{ width: "100%", background: "#c9a96e", color: "#1c3528", border: "none", padding: "9px 0", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", marginBottom: 10 }}>🛒 Add to Cart</button>
+                      )}
+                      {service.price != null && service.price > 0 ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                          <span style={{ fontSize: 18, fontWeight: 700, color: "#1c3528" }}>৳{service.price}</span>
+                          {service.offer != null && String(service.offer).replace(/[^0-9]/g, "") !== "" && Number(String(service.offer).replace(/[^0-9]/g, "")) > 0 && <span style={{ background: "#ef4444", color: "white", padding: "2px 8px", borderRadius: 10, fontSize: 11, fontWeight: 700 }}>-{String(service.offer).replace(/%/g, "")}%</span>}
+                        </div>
+                      ) : (
+                        <a href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${service.name}. Please share the price and details.`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "block", textAlign: "center", background: "#25D366", color: "white", padding: "10px 14px", borderRadius: 8, fontSize: 13, fontWeight: 700, marginBottom: 10 }}>বিস্তারিত জানতে WhatsApp করুন</a>
+                      )}
+                      <a href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${service.name}. Please share details and price.`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", background: "#25D366", color: "white", padding: "8px 18px", borderRadius: 8, fontSize: 13, fontWeight: 600 }}>WhatsApp-এ অর্ডার করুন</a>
+                    </div>
                   </div>
-                  <div style={{ padding: 18 }}>
-                    <span style={{ display: "inline-block", background: "#f0ebe0", color: "#1c3528", padding: "3px 10px", borderRadius: 12, fontSize: 11, fontWeight: 600, marginBottom: 8 }}>{service.category}</span>
-                    <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: "#1c3528", lineHeight: 1.3 }}>{service.name}</h3>
-                    <p style={{ fontSize: 12, color: "#1c3528", fontWeight: 600, marginBottom: 12 }}>বিস্তারিত দেখুন →</p>
-                    {service.price != null && service.price > 0 && (
-                      <button onClick={(e) => { e.stopPropagation(); addItem({ _id: service._id, id: service.id, name: service.name, image: service.image, price: service.price!, offer: service.offer, category: service.category }); }} style={{ width: "100%", background: "#c9a96e", color: "#1c3528", border: "none", padding: "9px 0", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", marginBottom: 10 }}>🛒 Add to Cart</button>
-                    )}
-                    {service.price != null && service.price > 0 ? (
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                        <span style={{ fontSize: 18, fontWeight: 700, color: "#1c3528" }}>৳{service.price}</span>
-                        {service.offer != null && service.offer > 0 && <span style={{ background: "#ef4444", color: "white", padding: "2px 8px", borderRadius: 10, fontSize: 11, fontWeight: 700 }}>-{service.offer}%</span>}
-                      </div>
-                    ) : (
-                      <a href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${service.name}. Please share the price and details.`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "block", textAlign: "center", background: "#25D366", color: "white", padding: "10px 14px", borderRadius: 8, fontSize: 13, fontWeight: 700, marginBottom: 10 }}>বিস্তারিত জানতে WhatsApp করুন</a>
-                    )}
-                    <a href={`https://wa.me/8801336410584?text=Hi! I'm interested in your ${service.name}. Please share details and price.`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", background: "#25D366", color: "white", padding: "8px 18px", borderRadius: 8, fontSize: 13, fontWeight: 600 }}>WhatsApp-এ অর্ডার করুন</a>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

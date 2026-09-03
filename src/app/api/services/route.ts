@@ -3,9 +3,27 @@ import { getDb } from "@/lib/mongodb";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
     const db = await getDb();
+
+    if (id) {
+      const { ObjectId } = await import("mongodb");
+      let filter: Record<string, unknown> = {};
+      if (ObjectId.isValid(id)) {
+        filter = { _id: new ObjectId(id) };
+      } else {
+        filter = { _id: id };
+      }
+      const service = await db.collection("services").findOne(filter);
+      if (!service) {
+        return NextResponse.json({ error: "Service not found" }, { status: 404 });
+      }
+      return NextResponse.json(service);
+    }
+
     const services = await db
       .collection("services")
       .find({})
