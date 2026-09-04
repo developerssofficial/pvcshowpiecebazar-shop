@@ -7,7 +7,7 @@ interface Service {
   name: string;
   description: string;
   price: number | null;
-  offer?: string;
+  offer?: string | number;
   category: string;
   image: string;
   inStock?: boolean;
@@ -19,8 +19,10 @@ export default function AdminPage() {
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Services state
+  // Services & Filter
   const [services, setServices] = useState<Service[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterCategory, setFilterCategory] = useState("All");
   const [seeding, setSeeding] = useState(false);
 
   // Form state
@@ -28,12 +30,10 @@ export default function AdminPage() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [offer, setOffer] = useState("");
-  const [category, setCategory] = useState("Showpiece");
+  const [category, setCategory] = useState("Couple Showpiece");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
-
-  // Stock state
   const [inStock, setInStock] = useState(true);
 
   // Edit state
@@ -50,10 +50,10 @@ export default function AdminPage() {
       const res = await fetch("/api/services");
       if (res.ok) {
         const data = await res.json();
-        setServices(data.services || data || []);
+        setServices(Array.isArray(data) ? data : data.services || []);
       }
     } catch {
-      // silently fail
+      // ignore
     }
   };
 
@@ -124,6 +124,10 @@ export default function AdminPage() {
         imageUrl = uploadData.url || uploadData.imageUrl || "";
       }
 
+      if (!imageUrl) {
+        throw new Error("অনুগ্রহ করে একটি ছবি নির্বাচন করুন");
+      }
+
       const serviceData = {
         name: serviceName,
         description,
@@ -135,24 +139,22 @@ export default function AdminPage() {
       };
 
       if (editingId) {
-        // Edit mode - PUT request
         const res = await fetch(`/api/services?id=${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(serviceData),
         });
-        if (!res.ok) throw new Error("সেবা আপডেট করা ব্যর্থ হয়েছে");
-        setSuccessMsg("সেবা সফলভাবে আপডেট হয়েছে!");
+        if (!res.ok) throw new Error("প্রোডাক্ট আপডেট করতে সমস্যা হয়েছে");
+        setSuccessMsg("প্রোডাক্ট সফলভাবে আপডেট হয়েছে! ✨");
         setEditingId(null);
       } else {
-        // Add mode - POST request
         const res = await fetch("/api/services", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(serviceData),
         });
-        if (!res.ok) throw new Error("সেবা যোগ করা ব্যর্থ হয়েছে");
-        setSuccessMsg("সেবা সফলভাবে যোগ হয়েছে!");
+        if (!res.ok) throw new Error("প্রোডাক্ট যোগ করতে সমস্যা হয়েছে");
+        setSuccessMsg("নতুন প্রোডাক্ট সফলভাবে যুক্ত হয়েছে! 🎉");
       }
 
       resetForm();
@@ -170,7 +172,7 @@ export default function AdminPage() {
     setDescription("");
     setPrice("");
     setOffer("");
-    setCategory("Showpiece");
+    setCategory("Couple Showpiece");
     setInStock(true);
     setImageFile(null);
     setImagePreview("");
@@ -183,7 +185,7 @@ export default function AdminPage() {
     setServiceName(service.name);
     setDescription(service.description);
     setPrice(service.price != null ? String(service.price) : "");
-    setOffer(service.offer || "");
+    setOffer(service.offer ? String(service.offer) : "");
     setCategory(service.category);
     setInStock(service.inStock !== false);
     setImageFile(null);
@@ -193,6 +195,7 @@ export default function AdminPage() {
   };
 
   const handleSeed = async () => {
+    if (!confirm("আপনি কি ডিফল্ট ডেমো প্রোডাক্টগুলো ডেটাবেজে যুক্ত করতে চান?")) return;
     setSeeding(true);
     try {
       const res = await fetch("/api/seed", { method: "POST" });
@@ -207,18 +210,36 @@ export default function AdminPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("আপনি কি নিশ্চিত এই সেবাটি মুছে ফেলতে চান?")) return;
+    if (!confirm("আপনি কি নিশ্চিত এই প্রোডাক্টটি স্থায়ীভাবে মুছে ফেলতে চান?")) return;
     try {
       const res = await fetch(`/api/services?id=${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
-      setSuccessMsg("সেবা মুছে ফেলা হয়েছে।");
+      setSuccessMsg("প্রোডাক্ট সফলভাবে মুছে ফেলা হয়েছে। 🗑️");
       fetchServices();
     } catch {
-      setErrorMsg("সেবা মুছে ফেলা ব্যর্থ হয়েছে।");
+      setErrorMsg("প্রোডাক্ট মুছে ফেলা সম্ভব হয়নি।");
     }
   };
 
-  // Clear messages after 4 seconds
+  const toggleStockStatus = async (service: Service) => {
+    try {
+      const newStatus = !service.inStock;
+      const res = await fetch(`/api/services?id=${service._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ inStock: newStatus }),
+      });
+      if (res.ok) {
+        setServices((prev) =>
+          prev.map((s) => (s._id === service._id ? { ...s, inStock: newStatus } : s))
+        );
+        setSuccessMsg(`স্টক স্ট্যাটাস আপডেট হয়েছে: ${newStatus ? "স্টকে আছে" : "স্টক আউট"}`);
+      }
+    } catch {
+      setErrorMsg("স্ট্যাটাস আপডেট করা যায়নি।");
+    }
+  };
+
   useEffect(() => {
     if (successMsg || errorMsg) {
       const timer = setTimeout(() => {
@@ -238,732 +259,513 @@ export default function AdminPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#1c3528",
-          fontFamily: "'Segoe UI', Tahoma, sans-serif",
+          background: "radial-gradient(circle at top center, #1b3d2b 0%, #0e1f16 100%)",
+          padding: 20,
+          fontFamily: "'Hind Siliguri', 'Outfit', sans-serif",
         }}
       >
-        <form
-          onSubmit={handleLogin}
+        <div
           style={{
-            background: "white",
-            padding: "40px 32px",
-            borderRadius: "12px",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+            background: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(16px)",
+            padding: "44px 36px",
+            borderRadius: 20,
+            boxShadow: "0 20px 50px rgba(0,0,0,0.4)",
             width: "100%",
-            maxWidth: "380px",
+            maxWidth: 420,
             textAlign: "center",
+            border: "1px solid rgba(212,175,55,0.3)",
           }}
         >
-          <h1
-            style={{
-              color: "#1c3528",
-              fontSize: "1.5rem",
-              marginBottom: "8px",
-            }}
-          >
-            PVC Showpiece Bazar
+          <img
+            src="/logo.png"
+            alt="Logo"
+            style={{ width: 64, height: 64, borderRadius: "50%", border: "2px solid #d4af37", marginBottom: 16, boxShadow: "0 4px 15px rgba(212,175,55,0.3)" }}
+          />
+          <h1 style={{ color: "#0e1f16", fontSize: 22, fontWeight: 800, marginBottom: 4, fontFamily: "'Outfit', sans-serif" }}>
+            PVC Showpiece <span style={{ color: "#aa8214" }}>Admin</span>
           </h1>
-          <p
-            style={{
-              color: "#f0ebe0",
-              fontSize: "0.95rem",
-              marginBottom: "28px",
-            }}
-          >
-            অ্যাডমিন প্যানেল
+          <p style={{ color: "#64748b", fontSize: 13, marginBottom: 28, fontWeight: 600 }}>
+            পণ্য ব্যবস্থাপনা কন্ট্রোল প্যানেল
           </p>
 
           {loginError && (
             <div
               style={{
-                background: "#fee",
-                color: "#c00",
-                padding: "10px 12px",
-                borderRadius: "6px",
-                marginBottom: "16px",
-                fontSize: "0.9rem",
+                background: "#fef2f2",
+                color: "#dc2626",
+                padding: "12px",
+                borderRadius: 10,
+                marginBottom: 20,
+                fontSize: 13,
+                fontWeight: 600,
+                border: "1px solid #fecaca",
               }}
             >
-              {loginError}
+              ⚠️ {loginError}
             </div>
           )}
 
-          <input
-            type="password"
-            placeholder="পাসওয়ার্ড দিন"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{
-              width: "100%",
-              padding: "12px 14px",
-              border: "2px solid #ddd",
-              borderRadius: "8px",
-              fontSize: "1rem",
-              outline: "none",
-              boxSizing: "border-box",
-              marginBottom: "16px",
-              transition: "border-color 0.2s",
-            }}
-            onFocus={(e) => (e.target.style.borderColor = "#f0ebe0")}
-            onBlur={(e) => (e.target.style.borderColor = "#ddd")}
-          />
+          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <input
+              type="password"
+              placeholder="অ্যাডমিন সিক্রেট পাসওয়ার্ড দিন"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={{
+                width: "100%",
+                padding: "14px 16px",
+                border: "1.5px solid #d1d5db",
+                borderRadius: 12,
+                fontSize: 15,
+                outline: "none",
+                background: "#f9fafb",
+              }}
+            />
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: "12px",
-              background: "#f0ebe0",
-              color: "#1c3528",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "1.05rem",
-              fontWeight: 700,
-              cursor: loading ? "not-allowed" : "pointer",
-              opacity: loading ? 0.7 : 1,
-              transition: "opacity 0.2s",
-            }}
-          >
-            {loading ? "যাচাই হচ্ছে..." : "লগইন করুন"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                background: "linear-gradient(135deg, #1b3d2b 0%, #0e1f16 100%)",
+                color: "#f5d77f",
+                padding: "14px",
+                border: "1px solid #d4af37",
+                borderRadius: 12,
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+                boxShadow: "0 6px 20px rgba(14,31,22,0.3)",
+              }}
+            >
+              {loading ? "যাচাই করা হচ্ছে..." : "লগইন করুন →"}
+            </button>
+          </form>
+        </div>
       </div>
     );
   }
 
-  // Admin Dashboard
+  // Calculate statistics
+  const totalProducts = services.length;
+  const inStockCount = services.filter((s) => s.inStock !== false).length;
+  const outOfStockCount = totalProducts - inStockCount;
+  const categoriesList = Array.from(new Set(services.map((s) => s.category).filter(Boolean)));
+
+  const filteredList = services.filter((s) => {
+    const matchesCategory = filterCategory === "All" || s.category === filterCategory;
+    const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#f5f5f5",
-        fontFamily: "'Segoe UI', Tahoma, sans-serif",
-      }}
-    >
-      {/* Header */}
-      <header
-        style={{
-          background: "#1c3528",
-          color: "white",
-          padding: "16px 24px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "12px",
-        }}
-      >
-        <h1 style={{ margin: 0, fontSize: "1.3rem" }}>
-          <span style={{ color: "#f0ebe0" }}>Admin Panel</span> - PVC Showpiece
-          Bazar
-        </h1>
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: "8px 20px",
-            background: "transparent",
-            color: "#f0ebe0",
-            border: "2px solid #f0ebe0",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "0.9rem",
-            fontWeight: 600,
-            transition: "all 0.2s",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#f0ebe0";
-            e.currentTarget.style.color = "#1c3528";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-            e.currentTarget.style.color = "#f0ebe0";
-          }}
-        >
-          লগআউট
-        </button>
+    <div style={{ minHeight: "100vh", background: "#f8f9fa", fontFamily: "'Hind Siliguri', 'Outfit', sans-serif" }}>
+      {/* Admin Navbar */}
+      <header style={{ background: "#0e1f16", borderBottom: "1px solid rgba(212,175,55,0.25)", position: "sticky", top: 0, zIndex: 90 }}>
+        <div style={{ maxWidth: 1300, margin: "0 auto", padding: "14px 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <img src="/logo.png" alt="Logo" style={{ width: 40, height: 40, borderRadius: "50%", border: "2px solid #d4af37" }} />
+            <div>
+              <span style={{ color: "white", fontSize: 18, fontWeight: 800 }}>
+                PVC Showpiece <span style={{ color: "#d4af37" }}>Control Hub</span>
+              </span>
+              <p style={{ color: "#a7f3d0", fontSize: 11, fontWeight: 600 }}>পণ্য নিয়ন্ত্রণ ও অ্যাডমিন প্যানেল</p>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                background: "rgba(255,255,255,0.1)",
+                color: "#e2e8f0",
+                padding: "8px 16px",
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 600,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              🌐 লাইভ শপ দেখুন
+            </a>
+
+            <button
+              onClick={handleLogout}
+              style={{
+                background: "#dc2626",
+                color: "white",
+                padding: "8px 16px",
+                border: "none",
+                borderRadius: 10,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              লগআউট
+            </button>
+          </div>
+        </div>
       </header>
 
-      <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "24px" }}>
-        {/* Messages */}
+      {/* Main Content Area */}
+      <main style={{ maxWidth: 1300, margin: "0 auto", padding: "30px 24px 80px" }}>
+        {/* Toast Alerts */}
         {successMsg && (
           <div
             style={{
-              background: "#d4edda",
-              color: "#155724",
-              padding: "12px 16px",
-              borderRadius: "8px",
-              marginBottom: "16px",
-              fontWeight: 600,
+              background: "#ecfdf5",
+              color: "#065f46",
+              padding: "14px 20px",
+              borderRadius: 12,
+              marginBottom: 24,
+              border: "1px solid #a7f3d0",
+              fontWeight: 700,
+              fontSize: 14,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              boxShadow: "0 4px 15px rgba(6,95,70,0.1)",
             }}
           >
-            {successMsg}
+            <span>✅</span> {successMsg}
           </div>
         )}
         {errorMsg && (
           <div
             style={{
-              background: "#f8d7da",
-              color: "#721c24",
-              padding: "12px 16px",
-              borderRadius: "8px",
-              marginBottom: "16px",
-              fontWeight: 600,
+              background: "#fef2f2",
+              color: "#991b1b",
+              padding: "14px 20px",
+              borderRadius: 12,
+              marginBottom: 24,
+              border: "1px solid #fecaca",
+              fontWeight: 700,
+              fontSize: 14,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
             }}
           >
-            {errorMsg}
+            <span>⚠️</span> {errorMsg}
           </div>
         )}
 
-        {/* Two Column Layout */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr",
-            gap: "24px",
-          }}
-        >
-          {/* Mobile: stacked, desktop: side by side via media query via inline style workaround */}
-          <style>{`
-            @media (min-width: 768px) {
-              .admin-grid { grid-template-columns: 1fr 1fr !important; }
-            }
-          `}</style>
-          <div
-            className="admin-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr",
-              gap: "24px",
-            }}
-          >
-            {/* Left Column - Add Service Form */}
-            <div
-              style={{
-                background: "white",
-                borderRadius: "12px",
-                padding: "24px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-              }}
-            >
-              <h2
-                style={{
-                  margin: "0 0 20px 0",
-                  color: "#1c3528",
-                  fontSize: "1.2rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <span>{editingId ? "সেবা এডিট করুন" : "নতুন সেবা যোগ করুন"}</span>
-                {editingId && (
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    style={{
-                      padding: "6px 14px",
-                      background: "#6c757d",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "6px",
-                      cursor: "pointer",
-                      fontSize: "0.8rem",
-                      fontWeight: 600,
-                    }}
-                  >
-                    বাতিল করুন
-                  </button>
-                )}
+        {/* Top Summary Cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18, marginBottom: 30 }}>
+          <div style={{ background: "white", padding: "20px", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+            <span style={{ fontSize: 13, color: "#64748b", fontWeight: 600 }}>মোট প্রোডাক্ট</span>
+            <div style={{ fontSize: 30, fontWeight: 800, color: "#0e1f16", marginTop: 4 }}>{totalProducts} টি</div>
+          </div>
+          <div style={{ background: "white", padding: "20px", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+            <span style={{ fontSize: 13, color: "#16a34a", fontWeight: 600 }}>স্টকে বিদ্যমান</span>
+            <div style={{ fontSize: 30, fontWeight: 800, color: "#16a34a", marginTop: 4 }}>{inStockCount} টি</div>
+          </div>
+          <div style={{ background: "white", padding: "20px", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+            <span style={{ fontSize: 13, color: "#dc2626", fontWeight: 600 }}>স্টক আউট</span>
+            <div style={{ fontSize: 30, fontWeight: 800, color: "#dc2626", marginTop: 4 }}>{outOfStockCount} টি</div>
+          </div>
+          <div style={{ background: "white", padding: "20px", borderRadius: 16, border: "1px solid #e5e7eb", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+            <span style={{ fontSize: 13, color: "#aa8214", fontWeight: 600 }}>ক্যাটাগরি সংখ্যা</span>
+            <div style={{ fontSize: 30, fontWeight: 800, color: "#aa8214", marginTop: 4 }}>{categoriesList.length} টি</div>
+          </div>
+        </div>
+
+        {/* Two Column Layout: Product Form (Left) & Product List (Right) */}
+        <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1.9fr", gap: 30, alignItems: "start" }} className="admin-grid">
+          {/* Left Form: Add / Edit Product */}
+          <div style={{ background: "white", borderRadius: 20, padding: "28px 24px", border: "1px solid #e5e7eb", boxShadow: "0 6px 20px rgba(0,0,0,0.04)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingBottom: 12, borderBottom: "1px solid #f1f5f9" }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0e1f16" }}>
+                {editingId ? "✏️ প্রোডাক্ট সম্পাদনা করুন" : "➕ নতুন প্রোডাক্ট যোগ করুন"}
               </h2>
-
-              <form onSubmit={handleAddService}>
-                <div style={{ marginBottom: "14px" }}>
-                  <label
-                    style={{
-                      display: "block",
-                      marginBottom: "4px",
-                      fontWeight: 600,
-                      color: "#333",
-                      fontSize: "0.9rem",
-                    }}
-                  >
-                    সেবার নাম *
-                  </label>
-                  <input
-                    type="text"
-                    value={serviceName}
-                    onChange={(e) => setServiceName(e.target.value)}
-                    required
-                    placeholder="সেবার নাম লিখুন"
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      border: "1.5px solid #ddd",
-                      borderRadius: "6px",
-                      fontSize: "0.95rem",
-                      boxSizing: "border-box",
-                    }}
-                  />
-                </div>
-
-                <div style={{ marginBottom: "14px" }}>
-                  <label
-                    style={{
-                      display: "block",
-                      marginBottom: "4px",
-                      fontWeight: 600,
-                      color: "#333",
-                      fontSize: "0.9rem",
-                    }}
-                  >
-                    বিবরণ *
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    required
-                    placeholder="সেবার বিবরণ লিখুন"
-                    rows={3}
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      border: "1.5px solid #ddd",
-                      borderRadius: "6px",
-                      fontSize: "0.95rem",
-                      resize: "vertical",
-                      boxSizing: "border-box",
-                    }}
-                  />
-                </div>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "12px",
-                    marginBottom: "14px",
-                  }}
+              {editingId && (
+                <button
+                  onClick={resetForm}
+                  style={{ background: "#f1f5f9", border: "none", color: "#64748b", padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                 >
-                  <div>
-                    <label
-                      style={{
-                        display: "block",
-                        marginBottom: "4px",
-                        fontWeight: 600,
-                        color: "#333",
-                        fontSize: "0.9rem",
-                      }}
-                    >
-                      মূল্য (৳)
-                    </label>
-                    <input
-                      type="number"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      min="0"
-                      placeholder="খালি রাখলে 'Call for Price' হবে"
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        border: "1.5px solid #ddd",
-                        borderRadius: "6px",
-                        fontSize: "0.95rem",
-                        boxSizing: "border-box",
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label
-                      style={{
-                        display: "block",
-                        marginBottom: "4px",
-                        fontWeight: 600,
-                        color: "#333",
-                        fontSize: "0.9rem",
-                      }}
-                    >
-                      অফার/ছাড়
-                    </label>
-                    <input
-                      type="text"
-                      value={offer}
-                      onChange={(e) => setOffer(e.target.value)}
-                      placeholder="যেমন: ১০% ছাড়"
-                      style={{
-                        width: "100%",
-                        padding: "10px 12px",
-                        border: "1.5px solid #ddd",
-                        borderRadius: "6px",
-                        fontSize: "0.95rem",
-                        boxSizing: "border-box",
-                      }}
-                    />
-                  </div>
-                </div>
+                  বাতিল করুন
+                </button>
+              )}
+            </div>
 
-                <div style={{ marginBottom: "14px" }}>
-                  <label
-                    style={{
-                      display: "block",
-                      marginBottom: "4px",
-                      fontWeight: 600,
-                      color: "#333",
-                      fontSize: "0.9rem",
-                    }}
-                  >
+            <form onSubmit={handleAddService} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 6 }}>
+                  প্রোডাক্টের নাম *
+                </label>
+                <input
+                  type="text"
+                  placeholder="যেমন: কাস্টম কাপল শোপিস"
+                  value={serviceName}
+                  onChange={(e) => setServiceName(e.target.value)}
+                  required
+                  style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, outline: "none" }}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 6 }}>
                     ক্যাটাগরি
                   </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      border: "1.5px solid #ddd",
-                      borderRadius: "6px",
-                      fontSize: "0.95rem",
-                      boxSizing: "border-box",
-                      background: "white",
-                    }}
+                    style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", background: "white" }}
                   >
-                    <option value="Showpiece">Showpiece</option>
-                    <option value="Decor">Decor</option>
-                    <option value="Art">Art</option>
-                    <option value="Gift">Gift</option>
+                    <option value="Couple Showpiece">Couple Showpiece</option>
+                    <option value="Name Showpiece">Name Showpiece</option>
+                    <option value="Family Showpiece">Family Showpiece</option>
+                    <option value="Calligraphy">Calligraphy</option>
+                    <option value="Wall Decor">Wall Decor</option>
+                    <option value="Home Decor">Home Decor</option>
+                    <option value="Gift Showpiece">Gift Showpiece</option>
                   </select>
                 </div>
 
-                {/* In Stock Toggle */}
-                <div style={{ marginBottom: "14px" }}>
-                  <label
+                <div>
+                  <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 6 }}>
+                    মূল্য (টাকা ৳)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="যেমন: 1200"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, outline: "none" }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 6 }}>
+                  ছাড়/অফার % (ঐচ্ছিক)
+                </label>
+                <input
+                  type="text"
+                  placeholder="যেমন: 15 (১৫% ছাড়)"
+                  value={offer}
+                  onChange={(e) => setOffer(e.target.value)}
+                  style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, outline: "none" }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 6 }}>
+                  প্রোডাক্ট ছবি *
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  style={{ width: "100%", fontSize: 13, color: "#64748b" }}
+                />
+                {imagePreview && (
+                  <div style={{ marginTop: 10, position: "relative", width: 120, height: 120, borderRadius: 10, overflow: "hidden", border: "2px solid #d4af37" }}>
+                    <img src={imagePreview} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: 13, fontWeight: 700, color: "#334155", marginBottom: 6 }}>
+                  বিস্তারিত বিবরণ
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="প্রোডাক্টের সাইজ, ম্যাটেরিয়াল ও বিবরণ লিখুন..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: "1px solid #cbd5e1", fontSize: 14, outline: "none", resize: "vertical" }}
+                />
+              </div>
+
+              {/* In Stock toggle */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 0" }}>
+                <input
+                  type="checkbox"
+                  id="stockToggle"
+                  checked={inStock}
+                  onChange={(e) => setInStock(e.target.checked)}
+                  style={{ width: 18, height: 18, cursor: "pointer", accentColor: "#16a34a" }}
+                />
+                <label htmlFor="stockToggle" style={{ fontSize: 14, fontWeight: 700, color: inStock ? "#16a34a" : "#dc2626", cursor: "pointer" }}>
+                  {inStock ? "✓ প্রোডাক্টটি স্টকে আছে" : "✗ প্রোডাক্টটি স্টক আউট"}
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                style={{
+                  background: "linear-gradient(135deg, #1b3d2b 0%, #0e1f16 100%)",
+                  color: "#f5d77f",
+                  padding: "14px",
+                  border: "1px solid #d4af37",
+                  borderRadius: 12,
+                  fontSize: 15,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  marginTop: 6,
+                }}
+              >
+                {submitting ? "সংরক্ষণ করা হচ্ছে..." : editingId ? "প্রোডাক্ট আপডেট করুন" : "প্রোডাক্ট যোগ করুন 🚀"}
+              </button>
+            </form>
+
+            <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #f1f5f9", display: "flex", justifyContent: "center" }}>
+              <button
+                onClick={handleSeed}
+                disabled={seeding}
+                style={{ background: "#f8fafc", border: "1px solid #cbd5e1", color: "#475569", padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+              >
+                {seeding ? "ডেটা যোগ হচ্ছে..." : "📦 ডিফল্ট ডেমো ডেটা লোড করুন"}
+              </button>
+            </div>
+          </div>
+
+          {/* Right Area: Product Catalog List */}
+          <div style={{ background: "white", borderRadius: 20, padding: "28px 24px", border: "1px solid #e5e7eb", boxShadow: "0 6px 20px rgba(0,0,0,0.04)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0e1f16" }}>
+                📋 প্রোডাক্ট তালিকা ({filteredList.length})
+              </h2>
+
+              {/* Search input */}
+              <input
+                type="text"
+                placeholder="🔍 প্রোডাক্ট খুঁজুন..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, outline: "none", width: 200 }}
+              />
+            </div>
+
+            {/* Category Filter Pills */}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
+              {["All", ...categoriesList].map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setFilterCategory(c)}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: 20,
+                    border: filterCategory === c ? "1px solid #0e1f16" : "1px solid #e2e8f0",
+                    background: filterCategory === c ? "#0e1f16" : "#f8fafc",
+                    color: filterCategory === c ? "#f5d77f" : "#64748b",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  {c === "All" ? "সবগুলো" : c}
+                </button>
+              ))}
+            </div>
+
+            {filteredList.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "50px 20px", color: "#94a3b8" }}>
+                কোনো প্রোডাক্ট পাওয়া যায়নি।
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {filteredList.map((item) => (
+                  <div
+                    key={item._id}
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 10,
-                      cursor: "pointer",
-                      fontSize: "0.9rem",
-                      fontWeight: 600,
-                      color: "#333",
+                      justifyContent: "space-between",
+                      padding: "14px 16px",
+                      borderRadius: 14,
+                      border: "1px solid #f1f5f9",
+                      background: "#fcfcfd",
+                      gap: 16,
+                      flexWrap: "wrap",
                     }}
                   >
-                    <div
-                      onClick={() => setInStock(!inStock)}
-                      style={{
-                        width: 48,
-                        height: 26,
-                        borderRadius: 13,
-                        background: inStock ? "#16a34a" : "#d1d5db",
-                        position: "relative",
-                        transition: "background 0.2s",
-                        cursor: "pointer",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: 22,
-                          height: 22,
-                          borderRadius: "50%",
-                          background: "white",
-                          position: "absolute",
-                          top: 2,
-                          left: inStock ? 24 : 2,
-                          transition: "left 0.2s",
-                          boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-                        }}
+                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        style={{ width: 56, height: 56, borderRadius: 10, objectFit: "cover", background: "#f1f5f9", border: "1px solid #e2e8f0" }}
                       />
-                    </div>
-                    <span>
-                      {inStock ? "✅ স্টকে আছে (In Stock)" : "❌ স্টকে নেই (Out of Stock)"}
-                    </span>
-                  </label>
-                </div>
-
-                <div style={{ marginBottom: "18px" }}>
-                  <label
-                    style={{
-                      display: "block",
-                      marginBottom: "4px",
-                      fontWeight: 600,
-                      color: "#333",
-                      fontSize: "0.9rem",
-                    }}
-                  >
-                    ছবি
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    ref={fileInputRef}
-                    style={{
-                      width: "100%",
-                      padding: "8px 0",
-                      fontSize: "0.9rem",
-                    }}
-                  />
-                  {imagePreview && (
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      style={{
-                        marginTop: "10px",
-                        width: "120px",
-                        height: "120px",
-                        objectFit: "cover",
-                        borderRadius: "8px",
-                        border: "2px solid #eee",
-                      }}
-                    />
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    background: editingId ? "#2563eb" : "#1c3528",
-                    color: "#f0ebe0",
-                    border: "none",
-                    borderRadius: "8px",
-                    fontSize: "1rem",
-                    fontWeight: 700,
-                    cursor: submitting ? "not-allowed" : "pointer",
-                    opacity: submitting ? 0.7 : 1,
-                    transition: "opacity 0.2s",
-                  }}
-                >
-                  {submitting
-                    ? editingId ? "আপডেট হচ্ছে..." : "যোগ হচ্ছে..."
-                    : editingId ? "পরিবর্তন সেভ করুন" : "সেবা যোগ করুন"}
-                </button>
-              </form>
-            </div>
-
-            {/* Right Column - Services List */}
-            <div
-              style={{
-                background: "white",
-                borderRadius: "12px",
-                padding: "24px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  gap: "10px",
-                  marginBottom: "16px",
-                }}
-              >
-                <h2
-                  style={{
-                    margin: 0,
-                    color: "#1c3528",
-                    fontSize: "1.2rem",
-                  }}
-                >
-                  সেবাসমূহ ({services.length})
-                </h2>
-                <button
-                  onClick={handleSeed}
-                  disabled={seeding}
-                  style={{
-                    padding: "8px 16px",
-                    background: "#f0ebe0",
-                    color: "#1c3528",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: seeding ? "not-allowed" : "pointer",
-                    fontSize: "0.85rem",
-                    fontWeight: 600,
-                    opacity: seeding ? 0.7 : 1,
-                  }}
-                >
-                  {seeding ? "যোগ হচ্ছে..." : "ডিফল্ট ডেটা যোগ করুন"}
-                </button>
-              </div>
-
-              <div
-                style={{
-                  maxHeight: "600px",
-                  overflowY: "auto",
-                }}
-              >
-                {services.length === 0 ? (
-                  <p
-                    style={{
-                      textAlign: "center",
-                      color: "#999",
-                      padding: "40px 0",
-                    }}
-                  >
-                    কোনো সেবা পাওয়া যায়নি।
-                  </p>
-                ) : (
-                  services.map((service) => (
-                    <div
-                      key={service._id}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "12px",
-                        padding: "12px",
-                        borderBottom: "1px solid #eee",
-                        transition: "background 0.15s",
-                      }}
-                    >
-                      {service.image ? (
-                        <img
-                          src={service.image}
-                          alt={service.name}
-                          style={{
-                            width: "60px",
-                            height: "60px",
-                            objectFit: "cover",
-                            borderRadius: "8px",
-                            flexShrink: 0,
-                            border: "1px solid #eee",
-                          }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: "60px",
-                            height: "60px",
-                            background: "#eee",
-                            borderRadius: "8px",
-                            flexShrink: 0,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "0.7rem",
-                            color: "#999",
-                          }}
-                        >
-                          ছবি নেই
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <h4 style={{ fontSize: 15, fontWeight: 700, color: "#1e293b", margin: 0 }}>{item.name}</h4>
+                          <span style={{ fontSize: 11, background: "#f1f5f9", color: "#475569", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>
+                            {item.category}
+                          </span>
                         </div>
-                      )}
-
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div
-                          style={{
-                            fontWeight: 600,
-                            color: "#333",
-                            fontSize: "0.95rem",
-                            marginBottom: "2px",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {service.name}
-                        </div>
-                        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
-                          <span
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 4 }}>
+                          <span style={{ fontSize: 14, fontWeight: 800, color: "#b91c1c" }}>
+                            ৳{item.price || "—"}
+                          </span>
+                          <button
+                            onClick={() => toggleStockStatus(item)}
                             style={{
+                              background: "none",
+                              border: "none",
+                              color: item.inStock !== false ? "#16a34a" : "#dc2626",
+                              fontSize: 12,
                               fontWeight: 700,
-                              color: "#1c3528",
-                              fontSize: "0.9rem",
+                              cursor: "pointer",
+                              padding: 0,
                             }}
                           >
-                            {service.price != null && service.price > 0 ? `৳${service.price}` : "Call for Price"}
-                          </span>
-                          {service.inStock !== false ? (
-                            <span style={{ background: "#d4edda", color: "#155724", padding: "2px 8px", borderRadius: "10px", fontSize: "0.7rem", fontWeight: 600 }}>In Stock</span>
-                          ) : (
-                            <span style={{ background: "#f8d7da", color: "#721c24", padding: "2px 8px", borderRadius: "10px", fontSize: "0.7rem", fontWeight: 600 }}>Out of Stock</span>
-                          )}
-                          {service.offer && (
-                            <span
-                              style={{
-                                background: "#fff3cd",
-                                color: "#856404",
-                                padding: "2px 8px",
-                                borderRadius: "10px",
-                                fontSize: "0.75rem",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {service.offer}
-                            </span>
-                          )}
-                          <span
-                            style={{
-                              background: "#1c352820",
-                              color: "#1c3528",
-                              padding: "2px 8px",
-                              borderRadius: "10px",
-                              fontSize: "0.75rem",
-                              fontWeight: 600,
-                            }}
-                          >
-                            {service.category}
-                          </span>
+                            {item.inStock !== false ? "● স্টকে আছে" : "○ স্টক আউট"}
+                          </button>
                         </div>
                       </div>
-
-                      <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
-                      <button
-                        onClick={() => handleEdit(service)}
-                        style={{
-                          padding: "6px 14px",
-                          background: "#2563eb",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          fontSize: "0.8rem",
-                          fontWeight: 600,
-                          transition: "background 0.2s",
-                        }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.background = "#1d4ed8")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.background = "#2563eb")
-                        }
-                      >
-                        এডিট
-                      </button>
-                      <button
-                        onClick={() => handleDelete(service._id)}
-                        style={{
-                          padding: "6px 14px",
-                          background: "#dc3545",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "6px",
-                          cursor: "pointer",
-                          fontSize: "0.8rem",
-                          fontWeight: 600,
-                          transition: "background 0.2s",
-                        }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.background = "#a71d2a")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.background = "#dc3545")
-                        }
-                      >
-                        মুছুন
-                      </button>
-                      </div>
                     </div>
-                  ))
-                )}
+
+                    {/* Action buttons */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <a
+                        href={`/products/${item._id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#475569", padding: "6px 10px", borderRadius: 8, fontSize: 12, fontWeight: 600 }}
+                      >
+                        👁️ দেখুন
+                      </a>
+
+                      <button
+                        onClick={() => handleEdit(item)}
+                        style={{ background: "#d4af37", border: "none", color: "#0e1f16", padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                      >
+                        ✏️ এডিট
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        style={{ background: "#fee2e2", border: "none", color: "#dc2626", padding: "6px 10px", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                      >
+                        🗑️ মুছুন
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
+            )}
           </div>
         </div>
       </main>
+
+      <style jsx global>{`
+        @media (max-width: 900px) {
+          .admin-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,24 +1,7 @@
 User-agent: *
-Disallow: /pvc-admin-*
+Allow: /
 Disallow: /api/
 Disallow: /admin
-
-User-agent: GPTBot
-Disallow: /
-
-User-agent: ChatGPT-User
-Disallow: /
-
-User-agent: CCBot
-Disallow: /
-
-User-agent: Google-Extended
-Disallow: /
-
-User-agent: anthropic-ai
-Disallow: /
-
-User-agent: ClaudeBot
-Disallow: /
+Disallow: /pvc-admin-*
 
 Sitemap: https://pvcshowpiecebazar.shop/sitemap.xml
