@@ -14,9 +14,10 @@ export default function CartSidebar() {
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0,0,0,0.5)",
+            background: "rgba(14, 31, 22, 0.6)",
+            backdropFilter: "blur(4px)",
             zIndex: 999,
-            animation: "fadeIn 0.2s ease",
+            animation: "fadeIn 0.25s ease",
           }}
         />
       )}
@@ -27,48 +28,51 @@ export default function CartSidebar() {
         style={{
           position: "fixed",
           top: 0,
-          right: isOpen ? 0 : "-400px",
-          width: 380,
-          maxWidth: "90vw",
+          right: isOpen ? 0 : "-420px",
+          width: 390,
+          maxWidth: "92vw",
           height: "100vh",
-          background: "white",
+          background: "#ffffff",
           zIndex: 1000,
-          boxShadow: isOpen ? "-4px 0 20px rgba(0,0,0,0.15)" : "none",
-          transition: "right 0.3s ease",
+          boxShadow: isOpen ? "-8px 0 30px rgba(0,0,0,0.25)" : "none",
+          transition: "right 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
           display: "flex",
           flexDirection: "column",
+          fontFamily: "'Hind Siliguri', 'Outfit', sans-serif",
         }}
       >
         {/* Header */}
         <div
           style={{
-            background: "linear-gradient(135deg, #1c3528, #2d5a3d)",
+            background: "linear-gradient(135deg, #12281d 0%, #1a3c2b 100%)",
             color: "white",
-            padding: "18px 20px",
+            padding: "18px 22px",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             flexShrink: 0,
+            borderBottom: "1px solid rgba(212,175,55,0.3)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 20 }}>&#128722;</span>
-            <h2 style={{ fontSize: 18, fontWeight: 700 }}>
+            <span style={{ fontSize: 22 }}>🛒</span>
+            <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>
               আপনার কার্ট
             </h2>
             {totalItems > 0 && (
               <span
                 style={{
-                  background: "#c9a96e",
-                  color: "#1c3528",
+                  background: "#d4af37",
+                  color: "#0e1f16",
                   borderRadius: "50%",
-                  width: 26,
-                  height: 26,
+                  minWidth: 24,
+                  height: 24,
+                  padding: "0 6px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 13,
-                  fontWeight: 700,
+                  fontSize: 12,
+                  fontWeight: 800,
                 }}
               >
                 {totalItems}
@@ -78,14 +82,14 @@ export default function CartSidebar() {
           <button
             onClick={() => setIsOpen(false)}
             style={{
-              background: "rgba(255,255,255,0.15)",
-              border: "none",
+              background: "rgba(255,255,255,0.12)",
+              border: "1px solid rgba(255,255,255,0.2)",
               color: "white",
               width: 34,
               height: 34,
               borderRadius: "50%",
               cursor: "pointer",
-              fontSize: 18,
+              fontSize: 16,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -100,23 +104,23 @@ export default function CartSidebar() {
           style={{
             flex: 1,
             overflowY: "auto",
-            padding: items.length === 0 ? 0 : "10px 16px",
+            padding: items.length === 0 ? 0 : "14px 20px",
           }}
         >
           {items.length === 0 ? (
             <div
               style={{
                 textAlign: "center",
-                padding: "60px 20px",
+                padding: "80px 20px",
                 color: "#64748b",
               }}
             >
-              <div style={{ fontSize: 48, marginBottom: 12 }}>&#128722;</div>
-              <p style={{ fontSize: 16, fontWeight: 600, marginBottom: 6 }}>
-                কার্ট খালি
+              <div style={{ fontSize: 52, marginBottom: 14 }}>🛍️</div>
+              <p style={{ fontSize: 17, fontWeight: 700, color: "#1e293b", marginBottom: 6 }}>
+                কার্ট খালি রয়েছে
               </p>
-              <p style={{ fontSize: 13 }}>
-                প্রোডাক্ট দেখে "Add to Cart" চাপুন
+              <p style={{ fontSize: 13, color: "#64748b" }}>
+                পছন্দের প্রোডাক্টের নিচে "কার্টে যোগ করুন" চাপুন
               </p>
             </div>
           ) : (
@@ -134,18 +138,19 @@ export default function CartSidebar() {
                     display: "flex",
                     gap: 12,
                     padding: "14px 0",
-                    borderBottom: "1px solid #f0f0f0",
-                    alignItems: "flex-start",
+                    borderBottom: "1px solid #f1f5f9",
+                    alignItems: "center",
                   }}
                 >
                   {/* Image */}
                   <div
                     style={{
-                      width: 70,
-                      height: 70,
-                      borderRadius: 10,
+                      width: 68,
+                      height: 68,
+                      borderRadius: 12,
                       overflow: "hidden",
-                      background: "#f0ebe0",
+                      background: "#faf8f5",
+                      border: "1px solid #e8e2d5",
                       flexShrink: 0,
                     }}
                   >
@@ -155,7 +160,7 @@ export default function CartSidebar() {
                       style={{
                         width: "100%",
                         height: "100%",
-                        objectFit: "cover",
+                        objectFit: "contain",
                       }}
                     />
                   </div>
@@ -165,8 +170,8 @@ export default function CartSidebar() {
                     <h4
                       style={{
                         fontSize: 14,
-                        fontWeight: 600,
-                        color: "#1c3528",
+                        fontWeight: 700,
+                        color: "#12281d",
                         marginBottom: 4,
                         whiteSpace: "nowrap",
                         overflow: "hidden",
@@ -175,7 +180,7 @@ export default function CartSidebar() {
                     >
                       {item.name}
                     </h4>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: "#b91c1c" }}>
+                    <p style={{ fontSize: 14, fontWeight: 800, color: "#b91c1c" }}>
                       ৳{effectivePrice}
                     </p>
 
@@ -186,36 +191,37 @@ export default function CartSidebar() {
                         alignItems: "center",
                         gap: 0,
                         marginTop: 6,
-                        border: "1px solid #e5e7eb",
+                        border: "1px solid #cbd5e1",
                         borderRadius: 8,
                         width: "fit-content",
+                        overflow: "hidden",
                       }}
                     >
                       <button
                         onClick={() => updateQuantity(id, item.quantity - 1)}
                         style={{
-                          width: 30,
-                          height: 30,
+                          width: 28,
+                          height: 28,
                           border: "none",
-                          background: "#f0ebe0",
+                          background: "#f8fafc",
                           cursor: "pointer",
                           fontSize: 14,
                           fontWeight: 700,
-                          color: "#1c3528",
-                          borderRadius: "8px 0 0 8px",
+                          color: "#1e293b",
                         }}
                       >
                         −
                       </button>
                       <span
                         style={{
-                          width: 36,
+                          width: 32,
                           textAlign: "center",
-                          fontSize: 14,
-                          fontWeight: 600,
-                          borderLeft: "1px solid #e5e7eb",
-                          borderRight: "1px solid #e5e7eb",
-                          lineHeight: "30px",
+                          fontSize: 13,
+                          fontWeight: 700,
+                          borderLeft: "1px solid #cbd5e1",
+                          borderRight: "1px solid #cbd5e1",
+                          lineHeight: "28px",
+                          background: "white",
                         }}
                       >
                         {item.quantity}
@@ -223,15 +229,14 @@ export default function CartSidebar() {
                       <button
                         onClick={() => updateQuantity(id, item.quantity + 1)}
                         style={{
-                          width: 30,
-                          height: 30,
+                          width: 28,
+                          height: 28,
                           border: "none",
-                          background: "#f0ebe0",
+                          background: "#f8fafc",
                           cursor: "pointer",
                           fontSize: 14,
                           fontWeight: 700,
-                          color: "#1c3528",
-                          borderRadius: "0 8px 8px 0",
+                          color: "#1e293b",
                         }}
                       >
                         +
@@ -244,22 +249,23 @@ export default function CartSidebar() {
                     <button
                       onClick={() => removeItem(id)}
                       style={{
-                        background: "none",
+                        background: "#fee2e2",
                         border: "none",
-                        color: "#ef4444",
+                        color: "#dc2626",
                         cursor: "pointer",
-                        fontSize: 18,
-                        padding: 2,
-                        lineHeight: 1,
+                        fontSize: 12,
+                        padding: "4px 8px",
+                        borderRadius: 6,
+                        fontWeight: 700,
                       }}
                     >
-                      ✕
+                      মুছুন
                     </button>
                     <p
                       style={{
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: "#1c3528",
+                        fontSize: 14,
+                        fontWeight: 800,
+                        color: "#12281d",
                         marginTop: 8,
                       }}
                     >
@@ -276,9 +282,9 @@ export default function CartSidebar() {
         {items.length > 0 && (
           <div
             style={{
-              borderTop: "2px solid #e5e7eb",
-              padding: "16px 20px",
-              background: "#fafaf7",
+              borderTop: "1px solid #e5e7eb",
+              padding: "18px 22px",
+              background: "#faf8f5",
               flexShrink: 0,
             }}
           >
@@ -289,11 +295,11 @@ export default function CartSidebar() {
                 justifyContent: "space-between",
                 marginBottom: 8,
                 fontSize: 14,
-                color: "#374151",
+                color: "#64748b",
               }}
             >
               <span>সাবটোটাল ({totalItems} টি)</span>
-              <span style={{ fontWeight: 700 }}>৳{totalPrice}</span>
+              <span style={{ fontWeight: 700, color: "#1e293b" }}>৳{totalPrice}</span>
             </div>
             <div
               style={{
@@ -304,8 +310,8 @@ export default function CartSidebar() {
                 color: "#64748b",
               }}
             >
-              <span>ডেলিভারি</span>
-              <span style={{ color: "#16a34a", fontWeight: 600 }}>পরবর্তীতে</span>
+              <span>হোম ডেলিভারি</span>
+              <span style={{ color: "#16a34a", fontWeight: 700 }}>ক্যাশ অন ডেলিভারি</span>
             </div>
 
             {/* Total */}
@@ -314,15 +320,15 @@ export default function CartSidebar() {
                 display: "flex",
                 justifyContent: "space-between",
                 marginBottom: 16,
-                padding: "10px 0",
+                padding: "12px 0 0",
                 borderTop: "1px dashed #d1d5db",
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: 800,
-                color: "#1c3528",
+                color: "#12281d",
               }}
             >
-              <span>মোট</span>
-              <span>৳{totalPrice}</span>
+              <span>সর্বমোট</span>
+              <span style={{ color: "#b91c1c" }}>৳{totalPrice}</span>
             </div>
 
             {/* Checkout Button */}
@@ -332,29 +338,18 @@ export default function CartSidebar() {
               style={{
                 display: "block",
                 textAlign: "center",
-                background: "linear-gradient(135deg, #1c3528, #2d5a3d)",
-                color: "white",
+                background: "linear-gradient(135deg, #d4af37 0%, #aa8214 100%)",
+                color: "#0e1f16",
                 padding: "14px 20px",
-                borderRadius: 10,
+                borderRadius: 12,
                 fontSize: 16,
                 fontWeight: 700,
                 width: "100%",
-                letterSpacing: 0.5,
+                boxShadow: "0 6px 20px rgba(212,175,55,0.3)",
               }}
             >
-              অর্ডার করুন (Cash on Delivery)
+              চেকআউট করুন (Cash on Delivery) →
             </a>
-
-            <p
-              style={{
-                textAlign: "center",
-                fontSize: 12,
-                color: "#64748b",
-                marginTop: 10,
-              }}
-            >
-              🔒 সিকিউর চেকআউট • ক্যাশ অন ডেলিভারি
-            </p>
           </div>
         )}
       </div>
